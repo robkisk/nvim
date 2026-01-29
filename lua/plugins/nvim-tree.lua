@@ -15,9 +15,5 @@ return {
         dotfiles = true,
       },
     })
-
-    -- Key mappings
-    vim.keymap.set("n", "<C-n>", ":NvimTreeToggle<CR>", { silent = true })
-    vim.keymap.set("n", "<leader>e", ":NvimTreeFocus<CR>", { silent = true })
   end,
 }

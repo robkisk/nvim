@@ -39,6 +39,7 @@ return {
 					"vim",
 					"dockerfile",
 					"gitignore",
+               "xml"
 				},
 				-- enable nvim-ts-context-commentstring plugin for commenting tsx and jsx
 				-- auto install above language parsers
