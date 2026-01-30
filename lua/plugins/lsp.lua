@@ -34,8 +34,47 @@ return {
         "ty",
         "yamlls",
       },
-      -- automatic_enable = true (default) - auto-calls vim.lsp.enable()
+      automatic_enable = {
+        exclude = { "yamlls" },
+      },
     },
+  },
+
+  -- yaml-companion: Schema management for YAML LSP
+  {
+    "mosheavni/yaml-companion.nvim",
+    ft = { "yaml" },
+    dependencies = { "neovim/nvim-lspconfig" },
+    opts = {
+      schemas = {
+        {
+          name = "Databricks Bundle",
+          uri = "file://" .. vim.fn.expand("~/.config/nvim/schemas/databricks_bundle.json"),
+        },
+      },
+      lspconfig = {
+        settings = {
+          yaml = {
+            validate = true,
+            schemaStore = {
+              enable = false,
+              url = "",
+            },
+            schemas = {
+              ["file://" .. vim.fn.expand("~/.config/nvim/schemas/databricks_bundle.json")] = {
+                "databricks.yml",
+                "databricks.yaml",
+              },
+            },
+          },
+        },
+      },
+    },
+    config = function(_, opts)
+      local cfg = require("yaml-companion").setup(opts)
+      vim.lsp.config("yamlls", cfg)
+      vim.lsp.enable("yamlls")
+    end,
   },
 
   -- LSPConfig: LSP server configurations
