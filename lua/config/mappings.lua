@@ -37,6 +37,10 @@ map("n", "<Leader>g", function()
 	require("fzf-lua").live_grep()
 end, { desc = "Live grep" })
 
+map("n", "<Leader>G", function()
+	require("fzf-lua").grep_curbuf()
+end, { desc = "Grep Current Buff" })
+
 map("n", "<Leader>h", function()
 	require("fzf-lua").help_tags()
 end, { desc = "Search help tags" })
