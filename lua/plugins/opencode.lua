@@ -42,8 +42,54 @@ return {
 			desc = "Add range to opencode",
 			expr = true,
 		},
+		{
+			"<leader>af",
+			function()
+				require("opencode").prompt("fix")
+			end,
+			mode = { "n", "x" },
+			desc = "Fix diagnostics",
+		},
+		{
+			"<leader>ae",
+			function()
+				require("opencode").prompt("explain")
+			end,
+			mode = { "n", "x" },
+			desc = "Explain code",
+		},
+		{
+			"<leader>at",
+			function()
+				require("opencode").prompt("test")
+			end,
+			mode = { "n", "x" },
+			desc = "Generate tests",
+		},
+		{
+			"<leader>ar",
+			function()
+				require("opencode").prompt("review")
+			end,
+			mode = { "n", "x" },
+			desc = "Review code",
+		},
+		{
+			"<leader>ad",
+			function()
+				require("opencode").prompt("document")
+			end,
+			mode = { "n", "x" },
+			desc = "Document code",
+		},
 	},
 	init = function()
 		vim.o.autoread = true
+		vim.api.nvim_create_autocmd("User", {
+			pattern = "OpencodeEvent:session.idle",
+			callback = function()
+				vim.notify("OpenCode finished", vim.log.levels.INFO)
+			end,
+		})
 	end,
 }

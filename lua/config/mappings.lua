@@ -25,7 +25,7 @@ map({ "n", "v" }, "<Leader>p", '"+p', { desc = "Paste from clipboard" })
 map({ "n", "v" }, "<Leader>P", '"+P', { desc = "Paste before from clipboard" })
 
 -- File explorer (nvim-tree)
-map("n", "<C-n>", ":NvimTreeToggle<CR>", { desc = "Toggle file explorer" })
+map("n", "<Leader>t", ":NvimTreeToggle<CR>", { desc = "Toggle file explorer" })
 map("n", "<Leader>e", ":NvimTreeFocus<CR>", { desc = "Focus file explorer" })
 
 -- Fuzzy finder (fzf-lua)

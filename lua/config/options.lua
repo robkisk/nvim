@@ -22,11 +22,12 @@ vim.opt.laststatus = 3
 
 -- Filetype associations
 vim.filetype.add({
-  filename = {
-    ['.databrickscfg'] = 'sh',
-  },
-  pattern = {
-    ['%.env'] = 'sh',
-    ['%.env%..*'] = 'sh',
-  },
+	filename = {
+		[".databrickscfg"] = "sh",
+	},
+	pattern = {
+		["%.env"] = "sh",
+		["%.env%..*"] = "sh",
+	},
 })
+
