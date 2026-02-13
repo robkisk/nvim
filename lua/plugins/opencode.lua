@@ -82,6 +82,13 @@ return {
 			mode = { "n", "x" },
 			desc = "Document code",
 		},
+		{
+			"<leader>an",
+			function()
+				require("opencode").command("session.new")
+			end,
+			desc = "New session",
+		},
 	},
 	init = function()
 		vim.o.autoread = true
