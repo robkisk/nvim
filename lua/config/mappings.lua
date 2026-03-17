@@ -56,6 +56,10 @@ end, { desc = "Find buffers" })
 -- Markdown
 map("n", "<Leader>mr", "<cmd>RenderMarkdown toggle<cr>", { desc = "Toggle markdown rendering" })
 
+-- Unified diff
+map("n", "<Leader>ud", "<cmd>Unified<cr>", { desc = "Diff against HEAD" })
+map("n", "<Leader>ur", "<cmd>Unified reset<cr>", { desc = "Close diff view" })
+
 -- Buffer navigation
 map("n", "<Tab>", ":bnext<CR>", { desc = "Next buffer" })
 map("n", "<S-Tab>", ":bprevious<CR>", { desc = "Previous buffer" })
@@ -63,3 +67,9 @@ map("n", "<Leader>x", ":bdelete<CR>", { desc = "Close buffer" })
 
 -- Clipboard integration
 vim.opt.clipboard = "unnamedplus"
+
+-- Terminal window navigation (escape terminal mode + move)
+map("t", "<C-w>h", "<C-\\><C-n><C-w>h", { desc = "Move to left window" })
+map("t", "<C-w>j", "<C-\\><C-n><C-w>j", { desc = "Move to below window" })
+map("t", "<C-w>k", "<C-\\><C-n><C-w>k", { desc = "Move to above window" })
+map("t", "<C-w>l", "<C-\\><C-n><C-w>l", { desc = "Move to right window" })

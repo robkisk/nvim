@@ -1,3 +1,9 @@
+vim.filetype.add({
+  extension = {
+    tfstate = "json",
+  },
+})
+
 local augroup = vim.api.nvim_create_augroup("UserConfig", { clear = true })
 
 -- Set border colors on colorscheme change

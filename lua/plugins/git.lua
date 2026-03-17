@@ -8,4 +8,9 @@ return {
     "tpope/vim-fugitive",
     cmd = { "Git", "G", "Gwrite", "Gread", "Gdiffsplit", "Gvdiffsplit" },
   },
+  {
+    "axkirillov/unified.nvim",
+    cmd = "Unified",
+    opts = {},
+  },
 }

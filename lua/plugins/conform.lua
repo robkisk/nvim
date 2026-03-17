@@ -31,5 +31,10 @@ return {
 			timeout_ms = 500,
 			lsp_format = "fallback",
 		},
+		formatters = {
+			prettier = {
+				prepend_args = { "--no-ignore" },
+			},
+		},
 	},
 }
