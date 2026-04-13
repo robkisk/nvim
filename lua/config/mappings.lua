@@ -30,7 +30,7 @@ map("n", "<Leader>e", ":NvimTreeFocus<CR>", { desc = "Focus file explorer" })
 
 -- Fuzzy finder (fzf-lua)
 map("n", "<Leader>f", function()
-	require("fzf-lua").files()
+	require("fzf-lua").files({ fd_opts = "--color=never --type f --hidden --no-ignore --exclude .git" })
 end, { desc = "Find files" })
 
 map("n", "<Leader>g", function()
@@ -55,6 +55,7 @@ end, { desc = "Find buffers" })
 
 -- Markdown
 map("n", "<Leader>mr", "<cmd>RenderMarkdown toggle<cr>", { desc = "Toggle markdown rendering" })
+map("n", "<Leader>mp", "<cmd>MarkdownPreviewToggle<cr>", { desc = "Toggle browser markdown preview" })
 
 -- Unified diff
 map("n", "<Leader>ud", "<cmd>Unified<cr>", { desc = "Diff against HEAD" })

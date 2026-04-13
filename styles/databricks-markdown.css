@@ -1,0 +1,199 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400;1,500&family=DM+Mono:wght@400;500&display=swap');
+
+:root {
+  --navy-900: #0B2026;
+  --navy-800: #1B3139;
+  --navy-700: #143D4A;
+  --navy-600: #1B5162;
+  --navy-500: #618794;
+  --navy-400: #90A5B1;
+  --navy-300: #C4CCD6;
+  --oat-medium: #EEEDE9;
+  --oat-light: #F9F7F4;
+  --lava-600: #FF3621;
+  --lava-500: #FF5F46;
+  --lava-300: #FABFBA;
+  --blue-600: #2272B4;
+  --blue-700: #0E538B;
+  --blue-300: #BAE1FC;
+  --green-600: #00A972;
+  --green-800: #095A35;
+  --yellow-600: #FFAB00;
+  --maroon-600: #98102A;
+}
+
+html, body {
+  font-family: 'DM Sans', Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--navy-900);
+  background-color: var(--oat-light);
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 2rem 2.5rem;
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'DM Sans', Arial, sans-serif;
+  color: var(--navy-800);
+  font-weight: 700;
+  margin-top: 1.8em;
+  margin-bottom: 0.6em;
+  line-height: 1.3;
+}
+
+h1 {
+  font-size: 2em;
+  padding-bottom: 0.3em;
+  border-bottom: 2px solid var(--lava-600);
+}
+
+h2 {
+  font-size: 1.5em;
+  padding-bottom: 0.25em;
+  border-bottom: 1px solid var(--navy-300);
+}
+
+h3 { font-size: 1.25em; }
+h4 { font-size: 1.1em; color: var(--navy-700); }
+
+/* Links */
+a {
+  color: var(--blue-600);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--blue-700);
+  text-decoration: underline;
+}
+
+/* Paragraphs & text */
+p {
+  margin: 0.8em 0;
+}
+
+strong {
+  font-weight: 700;
+  color: var(--navy-800);
+}
+
+/* Blockquotes */
+blockquote {
+  margin: 1em 0;
+  padding: 0.6em 1.2em;
+  border-left: 4px solid var(--lava-600);
+  background-color: var(--oat-medium);
+  color: var(--navy-700);
+}
+
+blockquote p {
+  margin: 0.4em 0;
+}
+
+/* Code */
+code {
+  font-family: 'DM Mono', 'Menlo', 'Consolas', monospace;
+  font-size: 0.9em;
+  background-color: var(--oat-medium);
+  color: var(--navy-800);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+}
+
+pre {
+  background-color: var(--navy-800);
+  color: #E8E8E8;
+  padding: 1em 1.2em;
+  border-radius: 8px;
+  overflow-x: auto;
+  line-height: 1.5;
+  margin: 1em 0;
+}
+
+pre code {
+  background: none;
+  color: inherit;
+  padding: 0;
+  font-size: 0.88em;
+}
+
+/* Tables */
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1em 0;
+}
+
+th {
+  background-color: var(--navy-800);
+  color: white;
+  font-weight: 500;
+  text-align: left;
+  padding: 0.6em 1em;
+}
+
+td {
+  padding: 0.5em 1em;
+  border-bottom: 1px solid var(--navy-300);
+}
+
+tr:nth-child(even) {
+  background-color: var(--oat-medium);
+}
+
+tr:hover {
+  background-color: #E5E4DF;
+}
+
+/* Lists */
+ul, ol {
+  padding-left: 1.8em;
+  margin: 0.6em 0;
+}
+
+li {
+  margin: 0.3em 0;
+}
+
+li::marker {
+  color: var(--lava-600);
+}
+
+/* Task lists */
+input[type="checkbox"] {
+  accent-color: var(--lava-600);
+  margin-right: 0.4em;
+}
+
+/* Horizontal rules */
+hr {
+  border: none;
+  height: 1px;
+  background-color: var(--navy-300);
+  margin: 2em 0;
+}
+
+/* Images */
+img {
+  max-width: 100%;
+  border-radius: 6px;
+  margin: 1em 0;
+}
+
+/* KaTeX / math overrides */
+.katex { font-size: 1.05em; }
+
+/* Mermaid diagram background */
+.mermaid {
+  background-color: white;
+  padding: 1em;
+  border-radius: 8px;
+  border: 1px solid var(--navy-300);
+}
+
+/* Hide plugin's built-in dark mode toggle */
+#toggle-theme {
+  display: none !important;
+}

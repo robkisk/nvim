@@ -62,8 +62,8 @@ return {
             },
             schemas = {
               ["file://" .. vim.fn.expand("~/.config/nvim/schemas/databricks_bundle.json")] = {
-                "databricks.yml",
-                "databricks.yaml",
+                "*.yml",
+                "*.yaml",
               },
             },
           },
