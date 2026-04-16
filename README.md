@@ -1,6 +1,6 @@
 # nvim
 
-Personal Neovim configuration built on **lazy.nvim** with LSP, treesitter, fuzzy finding, and AI-assisted development via [OpenCode](https://github.com/opencode-ai/opencode).
+Personal Neovim configuration built on **lazy.nvim** with LSP, treesitter, fuzzy finding, and AI-assisted development via [Claude Code](https://github.com/coder/claudecode.nvim).
 
 ## Structure
 
@@ -30,11 +30,11 @@ lua/
 | **Formatting** | [conform.nvim](https://github.com/stevearc/conform.nvim) (format on save) |
 | **Treesitter** | [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter) + [nvim-ts-autotag](https://github.com/windwp/nvim-ts-autotag) |
 | **Git** | [gitsigns.nvim](https://github.com/lewis6991/gitsigns.nvim), [vim-fugitive](https://github.com/tpope/vim-fugitive), [unified.nvim](https://github.com/4e554c4c/unified.nvim) |
-| **AI** | [opencode.nvim](https://github.com/opencode-ai/opencode.nvim) with smart terminal toggle |
-| **Markdown** | [render-markdown.nvim](https://github.com/MeanderingProgrammer/render-markdown.nvim), [bullets.vim](https://github.com/dkarter/bullets.vim) |
+| **AI** | [claudecode.nvim](https://github.com/coder/claudecode.nvim) (terminal split, diff review) |
+| **Markdown** | [markview.nvim](https://github.com/OXY2DEV/markview.nvim), [markdown-preview.nvim](https://github.com/iamcco/markdown-preview.nvim), [bullets.vim](https://github.com/dkarter/bullets.vim) |
 | **Diagrams** | [d2-vim](https://github.com/terrastruct/d2-vim), [tree-sitter-d2](https://github.com/pleshevskiy/tree-sitter-d2) |
-| **UI** | [which-key.nvim](https://github.com/folke/which-key.nvim), [indent-blankline.nvim](https://github.com/lukas-reineke/indent-blankline.nvim), [snacks.nvim](https://github.com/folke/snacks.nvim) |
-| **Misc** | [emoji.nvim](https://github.com/allaman/emoji.nvim), [mini.icons](https://github.com/echasnovski/mini.icons), [yaml-companion.nvim](https://github.com/someone-stole-my-name/yaml-companion.nvim) |
+| **UI** | [which-key.nvim](https://github.com/folke/which-key.nvim), [indent-blankline.nvim](https://github.com/lukas-reineke/indent-blankline.nvim) |
+| **Misc** | [emoji.nvim](https://github.com/allaman/emoji.nvim), [mini.icons](https://github.com/echasnovski/mini.icons), [yaml-companion.nvim](https://github.com/mosheavni/yaml-companion.nvim), [snacks.nvim](https://github.com/folke/snacks.nvim) (claudecode dep) |
 
 ## Language Servers
 
@@ -65,6 +65,13 @@ Configured via conform.nvim — all run on save with LSP fallback:
 
 ## Key Mappings
 
+### General
+
+| Key | Action |
+|---|---|
+| `<Leader>w` | Write buffer |
+| `<Leader>s` | Source current file |
+
 ### Navigation & Buffers
 
 | Key | Action |
@@ -73,6 +80,7 @@ Configured via conform.nvim — all run on save with LSP fallback:
 | `<Leader>x` | Close buffer |
 | `<Leader>t` | Toggle file tree |
 | `<Leader>e` | Focus file tree |
+| `j` / `k` | Wrap-aware up/down movement |
 
 ### Search (fzf-lua)
 
@@ -84,6 +92,7 @@ Configured via conform.nvim — all run on save with LSP fallback:
 | `<Leader>b` | Buffers |
 | `<Leader>h` | Help tags |
 | `<Leader>v` | Browse nvim config |
+| `<Leader>R` | Recent files |
 
 ### LSP
 
@@ -92,9 +101,11 @@ Configured via conform.nvim — all run on save with LSP fallback:
 | `gd` / `gD` | Go to definition / declaration |
 | `gi` / `gr` / `gt` | Implementation / references / type definition |
 | `K` | Hover docs |
+| `<C-k>` | Signature help |
 | `<Leader>rn` | Rename symbol |
 | `<Leader>ca` | Code action |
 | `[d` / `]d` | Previous / next diagnostic |
+| `<Leader>d` | Show diagnostic float |
 | `<Leader>cf` | Format buffer |
 
 ### Git
@@ -104,26 +115,39 @@ Configured via conform.nvim — all run on save with LSP fallback:
 | `<Leader>ud` | Diff against HEAD |
 | `<Leader>ur` | Close diff |
 
-### AI (OpenCode)
+### AI (Claude Code)
 
 | Key | Action |
 |---|---|
-| `<C-a>` | Ask with context |
-| `<C-x>` | Execute action |
-| `<C-.>` | Smart toggle terminal |
-| `<Leader>af` | Fix diagnostics |
-| `<Leader>ae` | Explain code |
-| `<Leader>at` | Generate tests |
-| `<Leader>ar` | Review code |
-| `<Leader>ad` | Document code |
-| `<Leader>an` | New session |
+| `<Leader>ac` | Toggle Claude terminal |
+| `<Leader>af` | Focus Claude terminal |
+| `<Leader>ar` | Resume Claude session |
+| `<Leader>aC` | Continue Claude session |
+| `<Leader>am` | Select Claude model |
+| `<Leader>ab` | Add current buffer to Claude |
+| `<Leader>as` | Send selection to Claude (visual) |
+| `<Leader>aa` | Accept Claude diff |
+| `<Leader>ad` | Deny Claude diff |
+
+### Markdown
+
+| Key | Action |
+|---|---|
+| `<Leader>mr` | Toggle markdown rendering |
+| `<Leader>mp` | Toggle browser markdown preview |
 
 ### Clipboard
 
 | Key | Action |
 |---|---|
-| `<Leader>yy` / `<Leader>yY` | Yank line / file to system clipboard |
-| `<Leader>yp` / `<Leader>yP` | Paste from system clipboard (after / before) |
+| `<Leader>y` / `<Leader>Y` | Yank selection / line to system clipboard |
+| `<Leader>p` / `<Leader>P` | Paste from system clipboard (after / before) |
+
+### Terminal
+
+| Key | Action |
+|---|---|
+| `<C-w>h/j/k/l` | Navigate between windows from terminal mode |
 
 ## Editor Defaults
 

@@ -1,53 +1,53 @@
 return {
 	{
 		"nvim-treesitter/nvim-treesitter",
-		event = { "BufReadPre", "BufNewFile" },
+		branch = "main",
 		build = ":TSUpdate",
+		lazy = false,
 		dependencies = {
 			"windwp/nvim-ts-autotag",
 		},
-		config = function()
-			-- import nvim-treesitter plugin
-			local treesitter = require("nvim-treesitter.configs")
-
-			-- configure treesitter
-			treesitter.setup({ -- enable syntax highlighting
-				highlight = {
-					enable = true,
-				},
-				-- enable indentation
-				indent = {
-				enable = true,
-				disable = { "yaml" },
-			},
-				-- enable autotagging (w/ nvim-ts-autotag plugin)
-				autotag = { enable = true },
-				-- ensure these language parsers are installed
-				ensure_installed = {
-					"json",
-					"javascript",
-					"typescript",
-					"tsx",
-					"yaml",
-					"html",
-					"python",
-					"css",
-					"prisma",
-					"markdown",
-					"markdown_inline",
-					"svelte",
-					"graphql",
-					"bash",
-					"lua",
-					"vim",
-					"dockerfile",
-					"gitignore",
-               "xml"
-				},
-				-- enable nvim-ts-context-commentstring plugin for commenting tsx and jsx
-				-- auto install above language parsers
-				auto_install = true,
+		init = function()
+			vim.api.nvim_create_autocmd("FileType", {
+				callback = function()
+					pcall(vim.treesitter.start)
+					if vim.bo.filetype ~= "yaml" then
+						vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+					end
+				end,
 			})
+		end,
+		config = function()
+			local ensure_installed = {
+				"json",
+				"javascript",
+				"typescript",
+				"tsx",
+				"yaml",
+				"html",
+				"python",
+				"css",
+				"prisma",
+				"markdown",
+				"markdown_inline",
+				"svelte",
+				"graphql",
+				"bash",
+				"lua",
+				"vim",
+				"dockerfile",
+				"gitignore",
+				"xml",
+			}
+			local installed = require("nvim-treesitter.config").get_installed()
+			local to_install = vim.iter(ensure_installed)
+				:filter(function(parser)
+					return not vim.tbl_contains(installed, parser)
+				end)
+				:totable()
+			if #to_install > 0 then
+				require("nvim-treesitter").install(to_install)
+			end
 		end,
 	},
 }
