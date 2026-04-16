@@ -53,6 +53,10 @@ map("n", "<Leader>b", function()
 	require("fzf-lua").buffers()
 end, { desc = "Find buffers" })
 
+map("n", "<Leader>R", function()
+	require("fzf-lua").oldfiles()
+end, { desc = "Recent files" })
+
 -- Markdown
 map("n", "<Leader>mr", "<cmd>RenderMarkdown toggle<cr>", { desc = "Toggle markdown rendering" })
 map("n", "<Leader>mp", "<cmd>MarkdownPreviewToggle<cr>", { desc = "Toggle browser markdown preview" })

@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Neovim Config Architecture</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: system-ui, -apple-system, sans-serif; background: #1F1F28; color: #DCD7BA; display: flex; height: 100vh; overflow: hidden; }
+
+  /* Sidebar */
+  .sidebar { width: 280px; background: #16161D; border-right: 1px solid #2A2A37; display: flex; flex-direction: column; overflow-y: auto; flex-shrink: 0; }
+  .sidebar h2 { padding: 16px 16px 8px; font-size: 15px; color: #7E9CD8; letter-spacing: 0.5px; }
+  .section { padding: 8px 16px 16px; border-bottom: 1px solid #2A2A37; }
+  .section h3 { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #727169; margin-bottom: 8px; }
+
+  /* Presets */
+  .presets { display: flex; flex-wrap: wrap; gap: 6px; }
+  .preset-btn { background: #2A2A37; border: 1px solid #363646; color: #DCD7BA; padding: 4px 10px; border-radius: 4px; font-size: 12px; cursor: pointer; transition: all 0.15s; }
+  .preset-btn:hover { border-color: #7E9CD8; color: #7E9CD8; }
+  .preset-btn.active { background: #2D3F5F; border-color: #7E9CD8; color: #7E9CD8; }
+
+  /* Checkboxes */
+  .check-row { display: flex; align-items: center; gap: 8px; padding: 3px 0; cursor: pointer; font-size: 13px; }
+  .check-row input { accent-color: #7E9CD8; cursor: pointer; }
+  .color-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+  /* Comments */
+  .comment-card { background: #2A2A37; border-radius: 6px; padding: 8px 10px; margin-bottom: 6px; font-size: 12px; position: relative; }
+  .comment-card .target { color: #7E9CD8; font-weight: 600; }
+  .comment-card .file { color: #727169; font-size: 11px; }
+  .comment-card .text { margin-top: 4px; color: #C8C093; }
+  .comment-card .delete { position: absolute; top: 6px; right: 8px; background: none; border: none; color: #727169; cursor: pointer; font-size: 14px; }
+  .comment-card .delete:hover { color: #C34043; }
+  .no-comments { color: #54546D; font-size: 12px; font-style: italic; }
+
+  /* Main */
+  .main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+  .canvas-wrap { flex: 1; position: relative; overflow: hidden; }
+  .canvas-wrap svg { width: 100%; height: 100%; display: block; }
+  .zoom-controls { position: absolute; top: 12px; right: 12px; display: flex; gap: 4px; z-index: 10; }
+  .zoom-btn { width: 32px; height: 32px; background: #2A2A37; border: 1px solid #363646; color: #DCD7BA; border-radius: 6px; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .zoom-btn:hover { border-color: #7E9CD8; color: #7E9CD8; }
+
+  /* Prompt */
+  .prompt-area { height: 170px; border-top: 1px solid #2A2A37; background: #16161D; display: flex; flex-direction: column; }
+  .prompt-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 16px; border-bottom: 1px solid #2A2A37; }
+  .prompt-header span { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #727169; }
+  .copy-btn { background: #2A2A37; border: 1px solid #363646; color: #DCD7BA; padding: 4px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; }
+  .copy-btn:hover { border-color: #76946A; color: #76946A; }
+  .copy-btn.copied { border-color: #76946A; color: #76946A; }
+  #prompt-text { flex: 1; padding: 12px 16px; font-family: 'SF Mono', 'Fira Code', 'JetBrains Mono', monospace; font-size: 12px; line-height: 1.6; overflow-y: auto; white-space: pre-wrap; color: #C8C093; }
+
+  /* Modal */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100; align-items: center; justify-content: center; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: #1F1F28; border: 1px solid #363646; border-radius: 10px; width: 420px; max-width: 90vw; padding: 20px; }
+  .modal h3 { color: #7E9CD8; font-size: 16px; margin-bottom: 2px; }
+  .modal .subtitle { color: #727169; font-size: 12px; font-family: monospace; margin-bottom: 10px; }
+  .modal .desc { color: #C8C093; font-size: 13px; line-height: 1.5; margin-bottom: 14px; padding: 10px; background: #2A2A37; border-radius: 6px; }
+  .modal textarea { width: 100%; height: 80px; background: #2A2A37; border: 1px solid #363646; border-radius: 6px; color: #DCD7BA; padding: 10px; font-family: system-ui; font-size: 13px; resize: vertical; }
+  .modal textarea:focus { outline: none; border-color: #7E9CD8; }
+  .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; }
+  .modal-actions button { padding: 6px 16px; border-radius: 6px; border: 1px solid #363646; font-size: 13px; cursor: pointer; }
+  .btn-save { background: #2D4F3F; border-color: #76946A !important; color: #76946A; }
+  .btn-save:hover { background: #345A48; }
+  .btn-cancel { background: #2A2A37; color: #727169; }
+  .btn-cancel:hover { color: #DCD7BA; }
+
+  /* SVG node styles */
+  .node-rect { rx: 6; ry: 6; stroke-width: 1.5; cursor: pointer; transition: opacity 0.2s; }
+  .node-rect:hover { stroke-width: 2.5; filter: brightness(1.2); }
+  .node-title { font-family: system-ui; font-size: 13px; font-weight: 600; fill: #DCD7BA; pointer-events: none; }
+  .node-sub { font-family: 'SF Mono', monospace; font-size: 9.5px; fill: #727169; pointer-events: none; }
+  .node-comment-dot { fill: #76946A; pointer-events: none; }
+  .conn-path { fill: none; stroke-width: 1.5; transition: opacity 0.2s; }
+  .conn-label { font-family: system-ui; font-size: 10px; fill: #727169; pointer-events: none; }
+  .conn-label-bg { fill: #1F1F28; opacity: 0.85; }
+  .layer-label { font-family: system-ui; font-size: 10px; fill: #54546D; letter-spacing: 0.5px; text-transform: uppercase; }
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <h2>Neovim Architecture</h2>
+
+  <div class="section">
+    <h3>Presets</h3>
+    <div class="presets" id="presets"></div>
+  </div>
+
+  <div class="section">
+    <h3>Layers</h3>
+    <div id="layer-toggles"></div>
+  </div>
+
+  <div class="section">
+    <h3>Connections</h3>
+    <div id="conn-toggles"></div>
+  </div>
+
+  <div class="section" style="flex:1;">
+    <h3>Comments <span id="comment-count">(0)</span></h3>
+    <div id="comments-list"><p class="no-comments">Click a node to add feedback</p></div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="canvas-wrap">
+    <div class="zoom-controls">
+      <button class="zoom-btn" onclick="doZoom(0.15)" title="Zoom in">+</button>
+      <button class="zoom-btn" onclick="doZoom(-0.15)" title="Zoom out">&minus;</button>
+      <button class="zoom-btn" onclick="resetView()" title="Reset view">&#8858;</button>
+    </div>
+    <svg id="diagram" viewBox="0 0 1100 830" preserveAspectRatio="xMidYMid meet"></svg>
+  </div>
+
+  <div class="prompt-area">
+    <div class="prompt-header">
+      <span>Prompt Output</span>
+      <button class="copy-btn" id="copy-btn">Copy</button>
+    </div>
+    <div id="prompt-text"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <h3 id="modal-title"></h3>
+    <p class="subtitle" id="modal-subtitle"></p>
+    <div class="desc" id="modal-desc"></div>
+    <textarea id="modal-comment" placeholder="Add your feedback or ideas for this component..."></textarea>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-save" onclick="saveComment()">Save Comment</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Data ─────────────────────────────────────────────────────────────
+
+const LAYERS = [
+  { id: 'entry',       label: 'Entry Point',    color: '#7E9CD8', band: [0, 100] },
+  { id: 'core',        label: 'Core Config',    color: '#938AA9', band: [100, 220] },
+  { id: 'lsp',         label: 'LSP Stack',      color: '#7E9CD8', band: [220, 355] },
+  { id: 'completion',  label: 'Completion',      color: '#76946A', band: [355, 475] },
+  { id: 'editor',      label: 'Editor Tools',   color: '#957FB8', band: [475, 595] },
+  { id: 'ui',          label: 'UI & Theme',     color: '#FFA066', band: [595, 715] },
+  { id: 'integration', label: 'Integrations',   color: '#6A9589', band: [715, 830] },
+];
+
+const CONN_TYPES = [
+  { id: 'bootstrap',  label: 'Bootstrap (load order)',   color: '#7E9CD8', dash: '' },
+  { id: 'dataflow',   label: 'Data Flow',                color: '#76946A', dash: '' },
+  { id: 'dependency',  label: 'Dependency',               color: '#727169', dash: '6,3' },
+  { id: 'keymap',      label: 'Keymap Wiring',            color: '#FFA066', dash: '3,3' },
+];
+
+const NODES = [
+  // Entry
+  { id: 'init', label: 'init.lua', subtitle: 'init.lua', x: 475, y: 25, w: 150, h: 50, layer: 'entry',
+    desc: 'Entry point. Sequentially requires 5 config modules. Nothing else lives here.' },
+
+  // Core Config
+  { id: 'lazy', label: 'config/lazy', subtitle: 'lua/config/lazy.lua', x: 20, y: 135, w: 155, h: 50, layer: 'core',
+    desc: 'Bootstraps lazy.nvim from git. Sets leader=comma. Auto-discovers plugins/*. Sets up file-change detection and autoread.' },
+  { id: 'options', label: 'config/options', subtitle: 'lua/config/options.lua', x: 210, y: 135, w: 160, h: 50, layer: 'core',
+    desc: '2-space tabs, relative numbers, smartcase search, no swapfile. Filetype associations: .databrickscfg/.env \u2192 shell.' },
+  { id: 'autocmds', label: 'config/autocmds', subtitle: 'lua/config/autocmds.lua', x: 405, y: 135, w: 165, h: 50, layer: 'core',
+    desc: 'Float border color (#b4befe), yank highlight (200ms), search hl toggle, no auto-comment, markdown spell, .tfstate \u2192 json.' },
+  { id: 'utils', label: 'config/utils', subtitle: 'lua/config/utils.lua', x: 605, y: 135, w: 145, h: 50, layer: 'core',
+    desc: 'Debug utility. Global P() function for pretty-printing Lua tables.' },
+  { id: 'mappings', label: 'config/mappings', subtitle: 'lua/config/mappings.lua', x: 785, y: 135, w: 165, h: 50, layer: 'core',
+    desc: 'Central keymap hub. Local map() wrapper enforces noremap + silent + desc. Targets fzf, nvim-tree, unified, clipboard, opencode.' },
+
+  // LSP Stack
+  { id: 'mason', label: 'mason.nvim', subtitle: 'lua/plugins/lsp.lua', x: 40, y: 270, w: 160, h: 50, layer: 'lsp',
+    desc: 'Package manager for LSP server binaries. Rounded UI with status icons. Runs :MasonUpdate on build.' },
+  { id: 'mason-lspconfig', label: 'mason-lspconfig', subtitle: 'lua/plugins/lsp.lua', x: 255, y: 270, w: 195, h: 50, layer: 'lsp',
+    desc: '9 servers in ensure_installed: bashls, gopls, html, jsonls, lua_ls, marksman, terraformls, ty, yamlls. yamlls excluded from automatic_enable.' },
+  { id: 'lspconfig', label: 'nvim-lspconfig', subtitle: 'lua/plugins/lsp.lua', x: 505, y: 270, w: 175, h: 50, layer: 'lsp',
+    desc: 'Core LSP config. LspAttach autocmd wires: gd/gD/gi/gr/gt (nav), K/C-k (docs), Leader-rn/ca (actions), [d/]d/Leader-d (diagnostics).' },
+  { id: 'yaml-companion', label: 'yaml-companion', subtitle: 'lua/plugins/lsp.lua', x: 735, y: 270, w: 195, h: 50, layer: 'lsp',
+    desc: 'Manual yamlls setup bypassing auto-enable. Loads Databricks bundle schema from schemas/databricks_bundle.json. Calls vim.lsp.enable("yamlls").' },
+
+  // Completion
+  { id: 'cmp', label: 'nvim-cmp', subtitle: 'lua/plugins/cmp.lua', x: 155, y: 395, w: 160, h: 50, layer: 'completion',
+    desc: 'Completion engine. Priority sources: LSP \u2192 snippets, then buffer \u2192 path. Bordered windows. C-j/C-p cycle, C-Space trigger, CR confirm.' },
+  { id: 'cmp-lsp', label: 'cmp-nvim-lsp', subtitle: 'lua/plugins/cmp.lua', x: 385, y: 395, w: 175, h: 50, layer: 'completion',
+    desc: 'Injects completion capabilities into ALL LSP servers via vim.lsp.config("*"). Bridges completion engine \u2194 language servers.' },
+  { id: 'luasnip', label: 'LuaSnip', subtitle: 'lua/plugins/cmp.lua', x: 630, y: 395, w: 160, h: 50, layer: 'completion',
+    desc: 'Snippet engine (v2). Loads VS Code snippets from friendly-snippets. C-l jump forward, C-h jump back.' },
+
+  // Editor Tools
+  { id: 'treesitter', label: 'treesitter', subtitle: 'lua/plugins/treesitter.lua', x: 30, y: 520, w: 160, h: 50, layer: 'editor',
+    desc: 'Syntax highlighting + indentation (disabled for YAML). 15+ parsers in ensure_installed. Auto-install on. Autotag for HTML/JSX.' },
+  { id: 'conform', label: 'conform.nvim', subtitle: 'lua/plugins/conform.lua', x: 245, y: 520, w: 165, h: 50, layer: 'editor',
+    desc: 'Format on save (500ms timeout). stylua, ruff_format+organize_imports, prettier (--no-ignore), shfmt. LSP fallback when no formatter.' },
+  { id: 'fzf', label: 'fzf-lua', subtitle: 'lua/plugins/fzf.lua', x: 465, y: 520, w: 150, h: 50, layer: 'editor',
+    desc: 'Fuzzy finder. Registered as vim.ui.select. Files (--hidden --no-ignore --exclude .git), live grep, buffers, help tags.' },
+  { id: 'nvim-tree', label: 'nvim-tree', subtitle: 'lua/plugins/nvim-tree.lua', x: 670, y: 520, w: 160, h: 50, layer: 'editor',
+    desc: 'File explorer sidebar. 30px width. Groups empty directories. Hides dotfiles by default.' },
+
+  // UI & Theme
+  { id: 'kanagawa', label: 'kanagawa', subtitle: 'lua/plugins/colorscheme.lua', x: 50, y: 640, w: 160, h: 50, layer: 'ui',
+    desc: 'Colorscheme. Wave variant (dark). Priority 1000 = loads before all others. Italic comments/keywords, bold statements.' },
+  { id: 'lualine', label: 'lualine', subtitle: 'lua/plugins/lualine.lua', x: 265, y: 640, w: 160, h: 50, layer: 'ui',
+    desc: 'Statusline. Section X shows opencode.statusline(). Tabline: buffers (left) + tabs (right). Absolute file paths (path=3).' },
+  { id: 'which-key', label: 'which-key', subtitle: 'lua/plugins/which-key.lua', x: 480, y: 640, w: 160, h: 50, layer: 'ui',
+    desc: 'Keymap discovery popup. Leader+? shows buffer-local maps. AI group registered for <leader>a prefix.' },
+  { id: 'snacks', label: 'snacks.nvim', subtitle: '(opencode dependency)', x: 695, y: 640, w: 165, h: 50, layer: 'ui',
+    desc: 'Folke\u2019s UI toolkit. Provides input, picker, terminal modules. Required by opencode.nvim for terminal toggle functionality.' },
+
+  // Integrations
+  { id: 'git', label: 'Git (3 plugins)', subtitle: 'lua/plugins/git.lua', x: 65, y: 760, w: 195, h: 50, layer: 'integration',
+    desc: 'gitsigns (gutter signs, BufReadPre), fugitive (:Git/:G commands), unified.nvim (diff view: <Leader>ud open, <Leader>ur close).' },
+  { id: 'opencode', label: 'opencode.nvim', subtitle: 'lua/plugins/opencode.lua', x: 330, y: 760, w: 185, h: 50, layer: 'integration',
+    desc: 'AI assistant. Smart terminal toggle (<C-.>) detects window state. Ask (<C-a>), prompts (fix/explain/test/review/doc). Session idle notification.' },
+  { id: 'markdown', label: 'Markdown (5)', subtitle: 'lua/plugins/*.lua', x: 585, y: 760, w: 195, h: 50, layer: 'integration',
+    desc: 'render-markdown (toggle <Leader>mr), markdown-preview (browser <Leader>mp), markview, bullets.vim, d2-vim + d2 treesitter parser.' },
+];
+
+const CONNECTIONS = [
+  // Bootstrap sequence (init.lua require order)
+  { from: 'init', to: 'lazy',     type: 'bootstrap', label: '1' },
+  { from: 'init', to: 'options',  type: 'bootstrap', label: '2' },
+  { from: 'init', to: 'autocmds', type: 'bootstrap', label: '3' },
+  { from: 'init', to: 'utils',    type: 'bootstrap', label: '4' },
+  { from: 'init', to: 'mappings', type: 'bootstrap', label: '5' },
+
+  // LSP three-tier pipeline
+  { from: 'mason',           to: 'mason-lspconfig', type: 'dataflow',   label: 'installs servers' },
+  { from: 'mason-lspconfig', to: 'lspconfig',       type: 'dataflow',   label: 'auto-configures' },
+  { from: 'yaml-companion',  to: 'lspconfig',       type: 'dataflow',   label: 'manual yamlls' },
+
+  // Completion <-> LSP bridge
+  { from: 'cmp-lsp',  to: 'lspconfig', type: 'dataflow',   label: 'capabilities' },
+  { from: 'cmp-lsp',  to: 'cmp',       type: 'dependency' },
+  { from: 'luasnip',  to: 'cmp',       type: 'dependency', label: 'snippets' },
+
+  // Cross-layer integrations
+  { from: 'lualine',  to: 'opencode',  type: 'dataflow',   label: 'statusline()' },
+  { from: 'opencode', to: 'snacks',    type: 'dependency',  label: 'terminal UI' },
+  { from: 'conform',  to: 'lspconfig', type: 'dataflow',   label: 'format fallback' },
+
+  // Keymap wiring (mappings.lua -> plugins)
+  { from: 'mappings', to: 'fzf',       type: 'keymap',     label: '<Leader>f/g/b/h' },
+  { from: 'mappings', to: 'nvim-tree', type: 'keymap',     label: '<Leader>t/e' },
+];
+
+const PRESETS = {
+  'Full System': {
+    layers: { entry:1, core:1, lsp:1, completion:1, editor:1, ui:1, integration:1 },
+    conns: { bootstrap:1, dataflow:1, dependency:1, keymap:1 }
+  },
+  'Boot Sequence': {
+    layers: { entry:1, core:1, lsp:0, completion:0, editor:0, ui:0, integration:0 },
+    conns: { bootstrap:1, dataflow:0, dependency:0, keymap:0 }
+  },
+  'LSP Pipeline': {
+    layers: { entry:0, core:0, lsp:1, completion:1, editor:0, ui:0, integration:0 },
+    conns: { bootstrap:0, dataflow:1, dependency:1, keymap:0 }
+  },
+  'Editor Flow': {
+    layers: { entry:0, core:1, lsp:0, completion:0, editor:1, ui:0, integration:0 },
+    conns: { bootstrap:0, dataflow:0, dependency:0, keymap:1 }
+  },
+  'AI Stack': {
+    layers: { entry:0, core:0, lsp:0, completion:0, editor:0, ui:1, integration:1 },
+    conns: { bootstrap:0, dataflow:1, dependency:1, keymap:0 }
+  },
+};
+
+// ── State ────────────────────────────────────────────────────────────
+
+const state = {
+  layers: Object.fromEntries(LAYERS.map(l => [l.id, true])),
+  conns: Object.fromEntries(CONN_TYPES.map(c => [c.id, true])),
+  comments: [],
+  zoom: 1,
+  activePreset: 'Full System',
+  hoveredNode: null,
+  modalNode: null,
+};
+
+const nodeMap = Object.fromEntries(NODES.map(n => [n.id, n]));
+const connTypeMap = Object.fromEntries(CONN_TYPES.map(c => [c.id, c]));
+
+// ── Rendering ────────────────────────────────────────────────────────
+
+function render() {
+  const svg = document.getElementById('diagram');
+  const ns = 'http://www.w3.org/2000/svg';
+  svg.innerHTML = '';
+
+  // Defs (arrow markers)
+  const defs = document.createElementNS(ns, 'defs');
+  CONN_TYPES.forEach(ct => {
+    const marker = document.createElementNS(ns, 'marker');
+    marker.setAttribute('id', `arrow-${ct.id}`);
+    marker.setAttribute('markerWidth', '8');
+    marker.setAttribute('markerHeight', '6');
+    marker.setAttribute('refX', '7');
+    marker.setAttribute('refY', '3');
+    marker.setAttribute('orient', 'auto');
+    const poly = document.createElementNS(ns, 'polygon');
+    poly.setAttribute('points', '0 0, 8 3, 0 6');
+    poly.setAttribute('fill', ct.color);
+    marker.appendChild(poly);
+    defs.appendChild(marker);
+  });
+  svg.appendChild(defs);
+
+  // Layer background bands
+  LAYERS.forEach(layer => {
+    if (!state.layers[layer.id]) return;
+    const rect = document.createElementNS(ns, 'rect');
+    rect.setAttribute('x', 0);
+    rect.setAttribute('y', layer.band[0]);
+    rect.setAttribute('width', 1100);
+    rect.setAttribute('height', layer.band[1] - layer.band[0]);
+    rect.setAttribute('fill', layer.color);
+    rect.setAttribute('opacity', '0.03');
+    svg.appendChild(rect);
+
+    const text = document.createElementNS(ns, 'text');
+    text.setAttribute('x', 1090);
+    text.setAttribute('y', layer.band[0] + 14);
+    text.setAttribute('text-anchor', 'end');
+    text.classList.add('layer-label');
+    text.textContent = layer.label;
+    svg.appendChild(text);
+  });
+
+  // Connections (drawn under nodes)
+  CONNECTIONS.forEach((conn, i) => {
+    const fromNode = nodeMap[conn.from];
+    const toNode = nodeMap[conn.to];
+    if (!state.layers[fromNode.layer] || !state.layers[toNode.layer]) return;
+    if (!state.conns[conn.type]) return;
+    const ct = connTypeMap[conn.type];
+
+    const path = document.createElementNS(ns, 'path');
+    path.setAttribute('d', computePath(fromNode, toNode));
+    path.setAttribute('stroke', ct.color);
+    path.setAttribute('marker-end', `url(#arrow-${ct.id})`);
+    path.classList.add('conn-path');
+    path.dataset.index = i;
+    if (ct.dash) path.setAttribute('stroke-dasharray', ct.dash);
+
+    // Hover dimming
+    if (state.hoveredNode) {
+      const involved = conn.from === state.hoveredNode || conn.to === state.hoveredNode;
+      path.style.opacity = involved ? '1' : '0.08';
+    }
+    svg.appendChild(path);
+
+    // Connection label
+    if (conn.label) {
+      const mid = computeMidpoint(fromNode, toNode);
+      const labelBg = document.createElementNS(ns, 'rect');
+      const labelText = document.createElementNS(ns, 'text');
+      labelText.setAttribute('x', mid.x);
+      labelText.setAttribute('y', mid.y);
+      labelText.setAttribute('text-anchor', 'middle');
+      labelText.setAttribute('dominant-baseline', 'central');
+      labelText.classList.add('conn-label');
+      labelText.textContent = conn.label;
+
+      if (state.hoveredNode) {
+        const involved = conn.from === state.hoveredNode || conn.to === state.hoveredNode;
+        labelText.style.opacity = involved ? '1' : '0.08';
+      }
+
+      // Measure label for background (estimate)
+      const textW = conn.label.length * 6.5 + 8;
+      labelBg.setAttribute('x', mid.x - textW / 2);
+      labelBg.setAttribute('y', mid.y - 7);
+      labelBg.setAttribute('width', textW);
+      labelBg.setAttribute('height', 14);
+      labelBg.setAttribute('rx', 3);
+      labelBg.classList.add('conn-label-bg');
+      if (state.hoveredNode) {
+        const involved = conn.from === state.hoveredNode || conn.to === state.hoveredNode;
+        labelBg.style.opacity = involved ? '0.85' : '0.08';
+      }
+      svg.appendChild(labelBg);
+      svg.appendChild(labelText);
+    }
+  });
+
+  // Nodes
+  NODES.forEach(node => {
+    if (!state.layers[node.layer]) return;
+    const layer = LAYERS.find(l => l.id === node.layer);
+
+    const g = document.createElementNS(ns, 'g');
+    g.dataset.id = node.id;
+    g.style.cursor = 'pointer';
+
+    // Hover dimming
+    if (state.hoveredNode && state.hoveredNode !== node.id) {
+      const connected = isConnectedTo(state.hoveredNode, node.id);
+      g.style.opacity = connected ? '1' : '0.2';
+    }
+
+    // Node rectangle
+    const rect = document.createElementNS(ns, 'rect');
+    rect.setAttribute('x', node.x);
+    rect.setAttribute('y', node.y);
+    rect.setAttribute('width', node.w);
+    rect.setAttribute('height', node.h);
+    rect.setAttribute('fill', '#2A2A37');
+    rect.setAttribute('stroke', layer.color);
+    rect.classList.add('node-rect');
+
+    // Comment indicator
+    const hasComment = state.comments.some(c => c.target === node.id);
+    if (hasComment) {
+      rect.setAttribute('stroke', '#76946A');
+      rect.setAttribute('stroke-width', '2.5');
+    }
+
+    g.appendChild(rect);
+
+    // Title
+    const title = document.createElementNS(ns, 'text');
+    title.setAttribute('x', node.x + node.w / 2);
+    title.setAttribute('y', node.y + 21);
+    title.setAttribute('text-anchor', 'middle');
+    title.classList.add('node-title');
+    title.textContent = node.label;
+    g.appendChild(title);
+
+    // Subtitle
+    const sub = document.createElementNS(ns, 'text');
+    sub.setAttribute('x', node.x + node.w / 2);
+    sub.setAttribute('y', node.y + 37);
+    sub.setAttribute('text-anchor', 'middle');
+    sub.classList.add('node-sub');
+    sub.textContent = node.subtitle;
+    g.appendChild(sub);
+
+    // Comment dot
+    if (hasComment) {
+      const dot = document.createElementNS(ns, 'circle');
+      dot.setAttribute('cx', node.x + node.w - 8);
+      dot.setAttribute('cy', node.y + 8);
+      dot.setAttribute('r', 4);
+      dot.classList.add('node-comment-dot');
+      g.appendChild(dot);
+    }
+
+    // Events
+    g.addEventListener('mouseenter', () => { state.hoveredNode = node.id; render(); });
+    g.addEventListener('mouseleave', () => { state.hoveredNode = null; render(); });
+    g.addEventListener('click', () => openModal(node));
+
+    svg.appendChild(g);
+  });
+}
+
+function computePath(from, to) {
+  const sameLayer = Math.abs((from.y + from.h / 2) - (to.y + to.h / 2)) < 30;
+
+  if (sameLayer) {
+    const goingRight = from.x < to.x;
+    const sx = goingRight ? from.x + from.w : from.x;
+    const sy = from.y + from.h / 2;
+    const ex = goingRight ? to.x : to.x + to.w;
+    const ey = to.y + to.h / 2;
+    const midX = (sx + ex) / 2;
+    return `M${sx},${sy} C${midX},${sy} ${midX},${ey} ${ex},${ey}`;
+  }
+
+  const goingDown = from.y < to.y;
+  const sx = from.x + from.w / 2;
+  const sy = goingDown ? from.y + from.h : from.y;
+  const ex = to.x + to.w / 2;
+  const ey = goingDown ? to.y : to.y + to.h;
+  const midY = (sy + ey) / 2;
+  return `M${sx},${sy} C${sx},${midY} ${ex},${midY} ${ex},${ey}`;
+}
+
+function computeMidpoint(from, to) {
+  const sameLayer = Math.abs((from.y + from.h / 2) - (to.y + to.h / 2)) < 30;
+  if (sameLayer) {
+    const goingRight = from.x < to.x;
+    const sx = goingRight ? from.x + from.w : from.x;
+    const ex = goingRight ? to.x : to.x + to.w;
+    return { x: (sx + ex) / 2, y: from.y + from.h / 2 - 10 };
+  }
+  const goingDown = from.y < to.y;
+  const sx = from.x + from.w / 2;
+  const sy = goingDown ? from.y + from.h : from.y;
+  const ex = to.x + to.w / 2;
+  const ey = goingDown ? to.y : to.y + to.h;
+  return { x: (sx + ex) / 2 + 10, y: (sy + ey) / 2 };
+}
+
+function isConnectedTo(nodeId, otherId) {
+  return CONNECTIONS.some(c =>
+    state.conns[c.type] &&
+    state.layers[nodeMap[c.from].layer] &&
+    state.layers[nodeMap[c.to].layer] &&
+    ((c.from === nodeId && c.to === otherId) || (c.to === nodeId && c.from === otherId))
+  );
+}
+
+// ── Controls ─────────────────────────────────────────────────────────
+
+function buildControls() {
+  // Presets
+  const presetsEl = document.getElementById('presets');
+  Object.keys(PRESETS).forEach(name => {
+    const btn = document.createElement('button');
+    btn.className = 'preset-btn' + (name === state.activePreset ? ' active' : '');
+    btn.textContent = name;
+    btn.onclick = () => applyPreset(name);
+    presetsEl.appendChild(btn);
+  });
+
+  // Layer toggles
+  const layersEl = document.getElementById('layer-toggles');
+  LAYERS.forEach(layer => {
+    const row = document.createElement('label');
+    row.className = 'check-row';
+    const cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.checked = state.layers[layer.id];
+    cb.onchange = () => { state.layers[layer.id] = cb.checked; state.activePreset = null; updatePresetButtons(); render(); updatePrompt(); };
+    const dot = document.createElement('span');
+    dot.className = 'color-dot';
+    dot.style.background = layer.color;
+    row.appendChild(cb);
+    row.appendChild(dot);
+    row.appendChild(document.createTextNode(' ' + layer.label));
+    layersEl.appendChild(row);
+  });
+
+  // Connection toggles
+  const connsEl = document.getElementById('conn-toggles');
+  CONN_TYPES.forEach(ct => {
+    const row = document.createElement('label');
+    row.className = 'check-row';
+    const cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.checked = state.conns[ct.id];
+    cb.onchange = () => { state.conns[ct.id] = cb.checked; state.activePreset = null; updatePresetButtons(); render(); };
+    const dot = document.createElement('span');
+    dot.className = 'color-dot';
+    dot.style.background = ct.color;
+    if (ct.dash) dot.style.border = `2px dashed ${ct.color}`;
+    else dot.style.border = `2px solid ${ct.color}`;
+    dot.style.background = 'transparent';
+    row.appendChild(cb);
+    row.appendChild(dot);
+    row.appendChild(document.createTextNode(' ' + ct.label));
+    connsEl.appendChild(row);
+  });
+}
+
+function applyPreset(name) {
+  const p = PRESETS[name];
+  state.activePreset = name;
+  LAYERS.forEach(l => { state.layers[l.id] = !!p.layers[l.id]; });
+  CONN_TYPES.forEach(c => { state.conns[c.id] = !!p.conns[c.id]; });
+
+  // Sync checkboxes
+  document.querySelectorAll('#layer-toggles input').forEach((cb, i) => { cb.checked = state.layers[LAYERS[i].id]; });
+  document.querySelectorAll('#conn-toggles input').forEach((cb, i) => { cb.checked = state.conns[CONN_TYPES[i].id]; });
+  updatePresetButtons();
+  render();
+  updatePrompt();
+}
+
+function updatePresetButtons() {
+  document.querySelectorAll('.preset-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.textContent === state.activePreset);
+  });
+}
+
+// ── Zoom ─────────────────────────────────────────────────────────────
+
+function doZoom(delta) {
+  state.zoom = Math.max(0.4, Math.min(2.5, state.zoom + delta));
+  applyZoom();
+}
+
+function resetView() {
+  state.zoom = 1;
+  applyZoom();
+}
+
+function applyZoom() {
+  const svg = document.getElementById('diagram');
+  const w = 1100 / state.zoom;
+  const h = 830 / state.zoom;
+  const x = (1100 - w) / 2;
+  const y = (830 - h) / 2;
+  svg.setAttribute('viewBox', `${x} ${y} ${w} ${h}`);
+}
+
+// ── Modal & Comments ─────────────────────────────────────────────────
+
+function openModal(node) {
+  state.modalNode = node;
+  document.getElementById('modal-title').textContent = node.label;
+  document.getElementById('modal-subtitle').textContent = node.subtitle;
+  document.getElementById('modal-desc').textContent = node.desc;
+  document.getElementById('modal-comment').value = '';
+  document.getElementById('modal-overlay').classList.add('open');
+  setTimeout(() => document.getElementById('modal-comment').focus(), 100);
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  state.modalNode = null;
+}
+
+function saveComment() {
+  const text = document.getElementById('modal-comment').value.trim();
+  if (!text || !state.modalNode) { closeModal(); return; }
+
+  state.comments.push({
+    id: Date.now(),
+    target: state.modalNode.id,
+    targetLabel: state.modalNode.label,
+    targetFile: state.modalNode.subtitle,
+    text: text,
+  });
+
+  closeModal();
+  renderComments();
+  render();
+  updatePrompt();
+}
+
+function deleteComment(id) {
+  state.comments = state.comments.filter(c => c.id !== id);
+  renderComments();
+  render();
+  updatePrompt();
+}
+
+function renderComments() {
+  const el = document.getElementById('comments-list');
+  document.getElementById('comment-count').textContent = `(${state.comments.length})`;
+
+  if (state.comments.length === 0) {
+    el.innerHTML = '<p class="no-comments">Click a node to add feedback</p>';
+    return;
+  }
+
+  el.innerHTML = state.comments.map(c => `
+    <div class="comment-card">
+      <button class="delete" onclick="deleteComment(${c.id})">&times;</button>
+      <div class="target">${c.targetLabel}</div>
+      <div class="file">${c.targetFile}</div>
+      <div class="text">${c.text}</div>
+    </div>
+  `).join('');
+}
+
+// ── Prompt ───────────────────────────────────────────────────────────
+
+function updatePrompt() {
+  const parts = [];
+  const visible = LAYERS.filter(l => state.layers[l.id]).map(l => l.label);
+
+  if (visible.length === LAYERS.length) {
+    parts.push('This is my Neovim configuration architecture (lazy.nvim, leader = comma).');
+  } else if (visible.length === 0) {
+    parts.push('(No layers selected)');
+  } else {
+    parts.push(`This is my Neovim configuration, focusing on: ${visible.join(', ')}.`);
+  }
+
+  if (state.comments.length > 0) {
+    parts.push('\nFeedback on specific components:\n');
+    state.comments.forEach(c => {
+      parts.push(`**${c.targetLabel}** (${c.targetFile}):\n${c.text}\n`);
+    });
+  } else {
+    parts.push('\n(Click nodes in the diagram to add feedback. Comments appear here as a copyable prompt.)');
+  }
+
+  document.getElementById('prompt-text').textContent = parts.join('\n');
+}
+
+// ── Copy ─────────────────────────────────────────────────────────────
+
+document.getElementById('copy-btn').addEventListener('click', () => {
+  const text = document.getElementById('prompt-text').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('copy-btn');
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1500);
+  });
+});
+
+// Close modal on overlay click or Escape
+document.getElementById('modal-overlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('modal-overlay')) closeModal();
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+// ── Init ─────────────────────────────────────────────────────────────
+
+buildControls();
+render();
+updatePrompt();
+</script>
+</body>
+</html>

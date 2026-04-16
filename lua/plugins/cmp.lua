@@ -49,7 +49,18 @@ return {
           { name = "luasnip" },
         }, {
           { name = "buffer" },
-          { name = "path" },
+          {
+            name = "path",
+            option = {
+              get_cwd = function(params)
+                local buf_dir = vim.fn.expand(("#%d:p:h"):format(params.context.bufnr))
+                if buf_dir:match("^/private/tmp") or buf_dir:match("^/tmp") then
+                  return vim.env.PWD or buf_dir
+                end
+                return buf_dir
+              end,
+            },
+          },
         }),
       })
 
