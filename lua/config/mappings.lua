@@ -70,6 +70,17 @@ map("n", "<Tab>", ":bnext<CR>", { desc = "Next buffer" })
 map("n", "<S-Tab>", ":bprevious<CR>", { desc = "Previous buffer" })
 map("n", "<Leader>x", ":bdelete<CR>", { desc = "Close buffer" })
 
+-- Claude Code
+map("n", "<Leader>ac", "<cmd>ClaudeCode<CR>", { desc = "Toggle Claude" })
+map("n", "<Leader>af", "<cmd>ClaudeCodeFocus<CR>", { desc = "Focus Claude" })
+map("n", "<Leader>ar", "<cmd>ClaudeCode --resume<CR>", { desc = "Resume Claude" })
+map("n", "<Leader>aC", "<cmd>ClaudeCode --continue<CR>", { desc = "Continue Claude" })
+map("n", "<Leader>am", "<cmd>ClaudeCodeSelectModel<CR>", { desc = "Select Claude model" })
+map("n", "<Leader>ab", "<cmd>ClaudeCodeAdd %<CR>", { desc = "Add buffer to Claude" })
+map("v", "<Leader>as", "<cmd>ClaudeCodeSend<CR>", { desc = "Send selection to Claude" })
+map("n", "<Leader>aa", "<cmd>ClaudeCodeDiffAccept<CR>", { desc = "Accept Claude diff" })
+map("n", "<Leader>ad", "<cmd>ClaudeCodeDiffDeny<CR>", { desc = "Deny Claude diff" })
+
 -- Clipboard integration
 vim.opt.clipboard = "unnamedplus"
 

@@ -59,6 +59,15 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
+-- Claude Code: add file from tree explorers
+vim.api.nvim_create_autocmd("FileType", {
+  group = augroup,
+  pattern = { "NvimTree", "neo-tree", "oil", "minifiles", "netrw" },
+  callback = function(ev)
+    vim.keymap.set("n", "<Leader>as", "<cmd>ClaudeCodeTreeAdd<cr>", { buffer = ev.buf, desc = "Add file to Claude" })
+  end,
+})
+
 -- Enable spell check for markdown files
 vim.api.nvim_create_autocmd("FileType", {
   group = augroup,
