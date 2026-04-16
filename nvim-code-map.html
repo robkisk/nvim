@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Neovim Config — Code Map</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: system-ui, -apple-system, sans-serif; background: #1a1b26; color: #c0caf5; height: 100vh; overflow: hidden; }
+
+  .layout { display: grid; grid-template-columns: 260px 1fr; grid-template-rows: 1fr 180px; height: 100vh; }
+  .sidebar { grid-row: 1 / 3; border-right: 1px solid #292e42; overflow-y: auto; padding: 16px; background: #16161e; }
+  .canvas-area { position: relative; overflow: hidden; }
+  .prompt-area { border-top: 1px solid #292e42; padding: 12px 16px; display: flex; flex-direction: column; gap: 8px; background: #16161e; }
+
+  h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: #565f89; margin-bottom: 10px; }
+  h3 { font-size: 12px; color: #7aa2f7; margin: 14px 0 6px; }
+
+  .preset-btn { display: block; width: 100%; padding: 6px 10px; margin-bottom: 4px; background: #292e42; border: 1px solid #3b4261; border-radius: 4px; color: #c0caf5; font-size: 12px; cursor: pointer; text-align: left; }
+  .preset-btn:hover { background: #3b4261; }
+  .preset-btn.active { background: #7aa2f7; color: #1a1b26; border-color: #7aa2f7; }
+
+  .layer-toggle { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; font-size: 12px; cursor: pointer; }
+  .layer-toggle input { accent-color: #7aa2f7; }
+  .layer-swatch { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+
+  .conn-toggle { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; font-size: 12px; cursor: pointer; }
+  .conn-toggle input { accent-color: #7aa2f7; }
+  .conn-line { width: 18px; height: 2px; display: inline-block; }
+
+  .zoom-controls { display: flex; gap: 4px; margin-top: 8px; }
+  .zoom-btn { padding: 4px 10px; background: #292e42; border: 1px solid #3b4261; border-radius: 4px; color: #c0caf5; cursor: pointer; font-size: 13px; }
+  .zoom-btn:hover { background: #3b4261; }
+
+  .comments-list { margin-top: 8px; }
+  .comment-item { background: #292e42; border-radius: 4px; padding: 6px 8px; margin-bottom: 4px; font-size: 11px; position: relative; }
+  .comment-item .target { color: #7aa2f7; font-weight: 600; }
+  .comment-item .text { color: #a9b1d6; margin-top: 2px; }
+  .comment-item .delete-btn { position: absolute; top: 4px; right: 6px; background: none; border: none; color: #f7768e; cursor: pointer; font-size: 11px; }
+
+  svg { width: 100%; height: 100%; }
+  .node-rect { rx: 6; ry: 6; cursor: pointer; stroke-width: 1.5; }
+  .node-rect:hover { filter: brightness(1.2); }
+  .node-label { font-family: system-ui; font-size: 11px; font-weight: 600; pointer-events: none; }
+  .node-sub { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 9px; pointer-events: none; opacity: 0.7; }
+  .commented .node-rect { stroke-width: 2.5; stroke-dasharray: none; }
+
+  .prompt-text { flex: 1; overflow-y: auto; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 12px; line-height: 1.5; color: #a9b1d6; white-space: pre-wrap; background: #1a1b26; border: 1px solid #292e42; border-radius: 4px; padding: 8px; }
+  .copy-btn { align-self: flex-end; padding: 6px 16px; background: #7aa2f7; color: #1a1b26; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600; }
+  .copy-btn:hover { background: #89b4fa; }
+  .copy-btn.copied { background: #9ece6a; }
+
+  /* Modal */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100; align-items: center; justify-content: center; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: #1a1b26; border: 1px solid #3b4261; border-radius: 8px; padding: 16px; width: 360px; }
+  .modal h3 { color: #c0caf5; margin: 0 0 4px; font-size: 14px; }
+  .modal .modal-file { font-family: monospace; font-size: 11px; color: #565f89; margin-bottom: 10px; }
+  .modal textarea { width: 100%; height: 80px; background: #292e42; border: 1px solid #3b4261; border-radius: 4px; color: #c0caf5; padding: 8px; font-size: 12px; resize: none; font-family: system-ui; }
+  .modal-actions { display: flex; gap: 8px; margin-top: 10px; justify-content: flex-end; }
+  .modal-actions button { padding: 5px 14px; border-radius: 4px; border: none; cursor: pointer; font-size: 12px; }
+  .modal-save { background: #7aa2f7; color: #1a1b26; font-weight: 600; }
+  .modal-cancel { background: #292e42; color: #c0caf5; border: 1px solid #3b4261 !important; }
+
+  .legend { position: absolute; bottom: 8px; left: 8px; background: #16161e; border: 1px solid #292e42; border-radius: 6px; padding: 8px 10px; font-size: 10px; }
+  .legend-row { display: flex; align-items: center; gap: 6px; margin-bottom: 3px; }
+  .legend-row:last-child { margin-bottom: 0; }
+</style>
+</head>
+<body>
+
+<div class="layout">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <h2>View Presets</h2>
+    <div id="presets"></div>
+
+    <h3>Layers</h3>
+    <div id="layers"></div>
+
+    <h3>Connections</h3>
+    <div id="connections"></div>
+
+    <h3>Zoom</h3>
+    <div class="zoom-controls">
+      <button class="zoom-btn" onclick="zoom(-0.15)">−</button>
+      <button class="zoom-btn" onclick="zoom(0.15)">+</button>
+      <button class="zoom-btn" onclick="resetZoom()">Reset</button>
+    </div>
+
+    <h3>Comments (<span id="comment-count">0</span>)</h3>
+    <div id="comments-list" class="comments-list"></div>
+  </div>
+
+  <!-- Canvas -->
+  <div class="canvas-area">
+    <svg id="canvas" xmlns="http://www.w3.org/2000/svg"></svg>
+    <div class="legend" id="legend"></div>
+  </div>
+
+  <!-- Prompt -->
+  <div class="prompt-area">
+    <div class="prompt-text" id="prompt-output">Click components to add architectural feedback. Use layer/connection toggles to focus on subsystems.</div>
+    <button class="copy-btn" id="copy-btn" onclick="copyPrompt()">Copy Prompt</button>
+  </div>
+</div>
+
+<!-- Comment Modal -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <h3 id="modal-title"></h3>
+    <div class="modal-file" id="modal-file"></div>
+    <textarea id="modal-text" placeholder="Add feedback about this component..."></textarea>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeModal()">Cancel</button>
+      <button class="modal-save" onclick="saveComment()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Layer definitions ──
+const LAYERS = {
+  bootstrap:  { label: 'Bootstrap',   color: '#ff9e64', fill: '#2d2015' },
+  config:     { label: 'Config',      color: '#bb9af7', fill: '#1f1a2e' },
+  manager:    { label: 'Plugin Mgr',  color: '#7aa2f7', fill: '#151d30' },
+  lsp:        { label: 'LSP Stack',   color: '#73daca', fill: '#132923' },
+  completion: { label: 'Completion',  color: '#e0af68', fill: '#2a2214' },
+  editing:    { label: 'Editing',     color: '#9ece6a', fill: '#1a2614' },
+  ui:         { label: 'UI / Theme',  color: '#f7768e', fill: '#2a1420' },
+  navigation: { label: 'Navigation',  color: '#2ac3de', fill: '#0f2429' },
+  git:        { label: 'Git',         color: '#c0caf5', fill: '#1a1c2e' },
+  ai:        { label: 'AI',           color: '#ff007c', fill: '#2a0a1a' },
+};
+
+// ── Connection types ──
+const CONN_TYPES = {
+  dependency:  { label: 'Dependency',      color: '#565f89', dash: '3,3' },
+  dataflow:    { label: 'Data Flow',       color: '#7aa2f7', dash: '' },
+  bridge:      { label: 'Bridge / Glue',   color: '#73daca', dash: '6,3' },
+  keybind:     { label: 'Keybind Source',   color: '#e0af68', dash: '8,4' },
+  event:       { label: 'Event / Autocmd', color: '#f7768e', dash: '4,4' },
+};
+
+// ── Nodes ──
+const nodes = [
+  // Bootstrap
+  { id: 'init', label: 'init.lua', subtitle: 'init.lua', x: 400, y: 30, w: 120, h: 40, layer: 'bootstrap' },
+
+  // Config layer
+  { id: 'lazy-cfg', label: 'config/lazy', subtitle: 'lua/config/lazy.lua', x: 120, y: 110, w: 120, h: 40, layer: 'config' },
+  { id: 'options', label: 'config/options', subtitle: 'lua/config/options.lua', x: 280, y: 110, w: 130, h: 40, layer: 'config' },
+  { id: 'autocmds', label: 'config/autocmds', subtitle: 'lua/config/autocmds.lua', x: 450, y: 110, w: 140, h: 40, layer: 'config' },
+  { id: 'utils', label: 'config/utils', subtitle: 'lua/config/utils.lua', x: 630, y: 110, w: 120, h: 40, layer: 'config' },
+  { id: 'mappings', label: 'config/mappings', subtitle: 'lua/config/mappings.lua', x: 790, y: 110, w: 140, h: 40, layer: 'config' },
+
+  // Plugin manager
+  { id: 'lazy-nvim', label: 'lazy.nvim', subtitle: 'folke/lazy.nvim', x: 120, y: 200, w: 120, h: 40, layer: 'manager' },
+
+  // LSP stack
+  { id: 'mason', label: 'mason.nvim', subtitle: 'mason-org/mason.nvim', x: 60, y: 310, w: 120, h: 40, layer: 'lsp' },
+  { id: 'mason-lsp', label: 'mason-lspconfig', subtitle: 'mason-org/mason-lspconfig', x: 220, y: 310, w: 140, h: 40, layer: 'lsp' },
+  { id: 'lspconfig', label: 'nvim-lspconfig', subtitle: 'neovim/nvim-lspconfig', x: 400, y: 310, w: 130, h: 40, layer: 'lsp' },
+  { id: 'yaml-comp', label: 'yaml-companion', subtitle: 'mosheavni/yaml-companion', x: 570, y: 310, w: 145, h: 40, layer: 'lsp' },
+
+  // Completion
+  { id: 'cmp', label: 'nvim-cmp', subtitle: 'hrsh7th/nvim-cmp', x: 60, y: 410, w: 120, h: 40, layer: 'completion' },
+  { id: 'cmp-lsp', label: 'cmp-nvim-lsp', subtitle: 'hrsh7th/cmp-nvim-lsp', x: 220, y: 410, w: 130, h: 40, layer: 'completion' },
+  { id: 'luasnip', label: 'LuaSnip', subtitle: 'L3MON4D3/LuaSnip', x: 390, y: 410, w: 110, h: 40, layer: 'completion' },
+  { id: 'snippets', label: 'friendly-snippets', subtitle: 'rafamadriz/friendly-snippets', x: 540, y: 410, w: 150, h: 40, layer: 'completion' },
+
+  // Editing / Formatting
+  { id: 'conform', label: 'conform.nvim', subtitle: 'stevearc/conform.nvim', x: 60, y: 500, w: 130, h: 40, layer: 'editing' },
+  { id: 'treesitter', label: 'nvim-treesitter', subtitle: 'nvim-treesitter/nvim-treesitter', x: 230, y: 500, w: 140, h: 40, layer: 'editing' },
+  { id: 'autotag', label: 'nvim-ts-autotag', subtitle: 'windwp/nvim-ts-autotag', x: 410, y: 500, w: 140, h: 40, layer: 'editing' },
+  { id: 'ibl', label: 'indent-blankline', subtitle: 'lukas-reineke/indent-blankline', x: 590, y: 500, w: 145, h: 40, layer: 'editing' },
+
+  // UI
+  { id: 'kanagawa', label: 'kanagawa.nvim', subtitle: 'rebelot/kanagawa.nvim', x: 60, y: 590, w: 130, h: 40, layer: 'ui' },
+  { id: 'lualine', label: 'lualine.nvim', subtitle: 'nvim-lualine/lualine.nvim', x: 230, y: 590, w: 130, h: 40, layer: 'ui' },
+  { id: 'which-key', label: 'which-key.nvim', subtitle: 'folke/which-key.nvim', x: 400, y: 590, w: 135, h: 40, layer: 'ui' },
+  { id: 'devicons', label: 'nvim-web-devicons', subtitle: 'nvim-tree/nvim-web-devicons', x: 575, y: 590, w: 150, h: 40, layer: 'ui' },
+  { id: 'mini-icons', label: 'mini.icons', subtitle: 'nvim-mini/mini.icons', x: 765, y: 590, w: 110, h: 40, layer: 'ui' },
+
+  // Navigation
+  { id: 'fzf', label: 'fzf-lua', subtitle: 'ibhagwan/fzf-lua', x: 60, y: 680, w: 110, h: 40, layer: 'navigation' },
+  { id: 'nvim-tree', label: 'nvim-tree.lua', subtitle: 'nvim-tree/nvim-tree.lua', x: 210, y: 680, w: 130, h: 40, layer: 'navigation' },
+
+  // Git
+  { id: 'gitsigns', label: 'gitsigns.nvim', subtitle: 'lewis6991/gitsigns.nvim', x: 400, y: 680, w: 130, h: 40, layer: 'git' },
+  { id: 'fugitive', label: 'vim-fugitive', subtitle: 'tpope/vim-fugitive', x: 570, y: 680, w: 125, h: 40, layer: 'git' },
+  { id: 'unified', label: 'unified.nvim', subtitle: 'axkirillov/unified.nvim', x: 735, y: 680, w: 125, h: 40, layer: 'git' },
+
+  // AI
+  { id: 'claudecode', label: 'claudecode.nvim', subtitle: 'coder/claudecode.nvim', x: 60, y: 770, w: 140, h: 40, layer: 'ai' },
+  { id: 'snacks', label: 'snacks.nvim', subtitle: 'folke/snacks.nvim', x: 240, y: 770, w: 120, h: 40, layer: 'ai' },
+
+  // Markdown (editing layer)
+  { id: 'render-md', label: 'render-markdown', subtitle: 'MeanderingProgrammer/render-markdown', x: 440, y: 770, w: 150, h: 40, layer: 'editing' },
+  { id: 'md-preview', label: 'markdown-preview', subtitle: 'iamcco/markdown-preview.nvim', x: 630, y: 770, w: 155, h: 40, layer: 'editing' },
+];
+
+// ── Connections ──
+const connections = [
+  // Bootstrap → config modules (load order)
+  { from: 'init', to: 'lazy-cfg', type: 'dataflow', label: '1st' },
+  { from: 'init', to: 'options', type: 'dataflow', label: '2nd' },
+  { from: 'init', to: 'autocmds', type: 'dataflow', label: '3rd' },
+  { from: 'init', to: 'utils', type: 'dataflow', label: '4th' },
+  { from: 'init', to: 'mappings', type: 'dataflow', label: '5th' },
+
+  // Config/lazy → lazy.nvim
+  { from: 'lazy-cfg', to: 'lazy-nvim', type: 'dataflow', label: 'bootstrap' },
+
+  // Mason 3-tier LSP
+  { from: 'mason', to: 'mason-lsp', type: 'bridge', label: 'installs bins' },
+  { from: 'mason-lsp', to: 'lspconfig', type: 'bridge', label: 'auto-enable' },
+  { from: 'yaml-comp', to: 'lspconfig', type: 'bridge', label: 'yamlls cfg' },
+
+  // Completion ↔ LSP
+  { from: 'cmp-lsp', to: 'lspconfig', type: 'bridge', label: 'capabilities' },
+  { from: 'cmp-lsp', to: 'cmp', type: 'dataflow', label: 'lsp source' },
+  { from: 'luasnip', to: 'cmp', type: 'dataflow', label: 'snippet source' },
+  { from: 'snippets', to: 'luasnip', type: 'dependency', label: 'vscode snippets' },
+
+  // Treesitter deps
+  { from: 'autotag', to: 'treesitter', type: 'dependency' },
+  { from: 'render-md', to: 'treesitter', type: 'dependency' },
+  { from: 'render-md', to: 'mini-icons', type: 'dependency' },
+
+  // UI deps
+  { from: 'fzf', to: 'devicons', type: 'dependency' },
+  { from: 'nvim-tree', to: 'devicons', type: 'dependency' },
+  { from: 'lualine', to: 'devicons', type: 'dependency' },
+
+  // Claudecode → snacks
+  { from: 'claudecode', to: 'snacks', type: 'dependency', label: 'terminal' },
+
+  // Mappings → plugins (keybind sources)
+  { from: 'mappings', to: 'fzf', type: 'keybind', label: ',f ,g ,b' },
+  { from: 'mappings', to: 'nvim-tree', type: 'keybind', label: ',t ,e' },
+  { from: 'mappings', to: 'claudecode', type: 'keybind', label: ',a*' },
+  { from: 'mappings', to: 'render-md', type: 'keybind', label: ',mr' },
+  { from: 'mappings', to: 'md-preview', type: 'keybind', label: ',mp' },
+  { from: 'mappings', to: 'unified', type: 'keybind', label: ',ud ,ur' },
+  { from: 'mappings', to: 'conform', type: 'keybind', label: ',cf' },
+
+  // LSP-attach keybinds (event-based)
+  { from: 'lspconfig', to: 'which-key', type: 'event', label: 'LspAttach keymaps' },
+
+  // Autocmds → plugins (event connections)
+  { from: 'autocmds', to: 'kanagawa', type: 'event', label: 'ColorScheme hl' },
+  { from: 'autocmds', to: 'ibl', type: 'event', label: 'IblScope hl' },
+  { from: 'autocmds', to: 'claudecode', type: 'event', label: 'tree-add keymap' },
+
+  // Conform fallback
+  { from: 'conform', to: 'lspconfig', type: 'bridge', label: 'lsp fallback' },
+
+  // Which-key reads all keymaps
+  { from: 'mappings', to: 'which-key', type: 'dataflow', label: 'discovers keys' },
+];
+
+// ── State ──
+const state = {
+  layers: {},
+  connTypes: {},
+  comments: [],
+  scale: 1,
+  panX: 0, panY: 0,
+  activePreset: 'full',
+  modalNode: null,
+};
+
+// Init toggles
+Object.keys(LAYERS).forEach(k => state.layers[k] = true);
+Object.keys(CONN_TYPES).forEach(k => state.connTypes[k] = true);
+
+// ── Presets ──
+const presets = {
+  full: { label: 'Full System', layers: Object.keys(LAYERS), conns: Object.keys(CONN_TYPES) },
+  lsp: { label: 'LSP Stack', layers: ['bootstrap', 'config', 'lsp', 'completion'], conns: ['dataflow', 'bridge', 'dependency'] },
+  ui: { label: 'UI Layer', layers: ['config', 'ui', 'navigation'], conns: ['dependency', 'keybind', 'dataflow'] },
+  keybinds: { label: 'Keybind Flow', layers: ['config', 'navigation', 'editing', 'git', 'ai', 'lsp'], conns: ['keybind', 'event'] },
+  editing: { label: 'Editing & Format', layers: ['config', 'editing', 'lsp'], conns: ['dependency', 'bridge', 'event'] },
+};
+
+// ── Render presets ──
+function renderPresets() {
+  const el = document.getElementById('presets');
+  el.innerHTML = '';
+  Object.entries(presets).forEach(([key, p]) => {
+    const btn = document.createElement('button');
+    btn.className = 'preset-btn' + (state.activePreset === key ? ' active' : '');
+    btn.textContent = p.label;
+    btn.onclick = () => applyPreset(key);
+    el.appendChild(btn);
+  });
+}
+
+function applyPreset(key) {
+  const p = presets[key];
+  state.activePreset = key;
+  Object.keys(LAYERS).forEach(k => state.layers[k] = p.layers.includes(k));
+  Object.keys(CONN_TYPES).forEach(k => state.connTypes[k] = p.conns.includes(k));
+  renderControls();
+  updateAll();
+}
+
+// ── Render layer/conn controls ──
+function renderControls() {
+  const layerEl = document.getElementById('layers');
+  layerEl.innerHTML = '';
+  Object.entries(LAYERS).forEach(([key, l]) => {
+    const label = document.createElement('label');
+    label.className = 'layer-toggle';
+    label.innerHTML = `<input type="checkbox" ${state.layers[key] ? 'checked' : ''}>
+      <span class="layer-swatch" style="background:${l.color}"></span> ${l.label}`;
+    label.querySelector('input').onchange = (e) => { state.layers[key] = e.target.checked; state.activePreset = null; renderPresets(); updateAll(); };
+    layerEl.appendChild(label);
+  });
+
+  const connEl = document.getElementById('connections');
+  connEl.innerHTML = '';
+  Object.entries(CONN_TYPES).forEach(([key, c]) => {
+    const label = document.createElement('label');
+    label.className = 'conn-toggle';
+    label.innerHTML = `<input type="checkbox" ${state.connTypes[key] ? 'checked' : ''}>
+      <span class="conn-line" style="background:${c.color}"></span> ${c.label}`;
+    label.querySelector('input').onchange = (e) => { state.connTypes[key] = e.target.checked; state.activePreset = null; renderPresets(); updateAll(); };
+    connEl.appendChild(label);
+  });
+
+  renderPresets();
+}
+
+// ── SVG rendering ──
+function updateAll() {
+  renderDiagram();
+  updatePrompt();
+}
+
+function renderDiagram() {
+  const svg = document.getElementById('canvas');
+  const visibleLayers = new Set(Object.keys(state.layers).filter(k => state.layers[k]));
+  const visibleConns = new Set(Object.keys(state.connTypes).filter(k => state.connTypes[k]));
+  const visibleNodeIds = new Set(nodes.filter(n => visibleLayers.has(n.layer)).map(n => n.id));
+
+  // Compute viewBox from visible nodes
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  nodes.filter(n => visibleNodeIds.has(n.id)).forEach(n => {
+    minX = Math.min(minX, n.x - 10);
+    minY = Math.min(minY, n.y - 10);
+    maxX = Math.max(maxX, n.x + n.w + 10);
+    maxY = Math.max(maxY, n.y + n.h + 10);
+  });
+  if (minX === Infinity) { minX = 0; minY = 0; maxX = 900; maxY = 800; }
+
+  const pad = 30;
+  const vbW = (maxX - minX + pad * 2) / state.scale;
+  const vbH = (maxY - minY + pad * 2) / state.scale;
+  const vbX = minX - pad + state.panX;
+  const vbY = minY - pad + state.panY;
+
+  let html = `<svg viewBox="${vbX} ${vbY} ${vbW} ${vbH}" xmlns="http://www.w3.org/2000/svg">`;
+
+  // Arrowhead markers
+  Object.entries(CONN_TYPES).forEach(([key, c]) => {
+    html += `<defs><marker id="arrow-${key}" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="${c.color}"/></marker></defs>`;
+  });
+
+  // Draw connections
+  connections.forEach(c => {
+    if (!visibleConns.has(c.type)) return;
+    const from = nodes.find(n => n.id === c.from);
+    const to = nodes.find(n => n.id === c.to);
+    if (!from || !to || !visibleNodeIds.has(from.id) || !visibleNodeIds.has(to.id)) return;
+
+    const ct = CONN_TYPES[c.type];
+    const x1 = from.x + from.w / 2, y1 = from.y + from.h;
+    const x2 = to.x + to.w / 2, y2 = to.y;
+
+    // Bezier curve
+    const cy1 = y1 + (y2 - y1) * 0.4;
+    const cy2 = y1 + (y2 - y1) * 0.6;
+    const dash = ct.dash ? ` stroke-dasharray="${ct.dash}"` : '';
+
+    html += `<path d="M ${x1} ${y1} C ${x1} ${cy1}, ${x2} ${cy2}, ${x2} ${y2}"
+      fill="none" stroke="${ct.color}" stroke-width="1.2"${dash}
+      marker-end="url(#arrow-${c.type})" opacity="0.7"/>`;
+
+    // Label
+    if (c.label) {
+      const mx = (x1 + x2) / 2;
+      const my = (y1 + y2) / 2;
+      html += `<text x="${mx}" y="${my - 4}" text-anchor="middle"
+        font-size="8" fill="${ct.color}" opacity="0.8" font-family="system-ui">${c.label}</text>`;
+    }
+  });
+
+  // Draw nodes
+  const commentedIds = new Set(state.comments.map(c => c.target));
+  nodes.filter(n => visibleNodeIds.has(n.id)).forEach(n => {
+    const layer = LAYERS[n.layer];
+    const isCommented = commentedIds.has(n.id);
+    const strokeColor = isCommented ? '#ff9e64' : layer.color;
+    const strokeWidth = isCommented ? 2.5 : 1.5;
+
+    html += `<g class="${isCommented ? 'commented' : ''}" onclick="openModal('${n.id}')" style="cursor:pointer">
+      <rect class="node-rect" x="${n.x}" y="${n.y}" width="${n.w}" height="${n.h}"
+        fill="${layer.fill}" stroke="${strokeColor}" stroke-width="${strokeWidth}"/>
+      <text class="node-label" x="${n.x + n.w/2}" y="${n.y + 17}" text-anchor="middle" fill="${layer.color}">${n.label}</text>
+      <text class="node-sub" x="${n.x + n.w/2}" y="${n.y + 30}" text-anchor="middle" fill="${layer.color}">${n.subtitle}</text>
+    </g>`;
+
+    if (isCommented) {
+      html += `<circle cx="${n.x + n.w - 4}" cy="${n.y + 4}" r="5" fill="#ff9e64"/>
+        <text x="${n.x + n.w - 4}" y="${n.y + 7}" text-anchor="middle" font-size="7" fill="#1a1b26" font-weight="bold">!</text>`;
+    }
+  });
+
+  html += '</svg>';
+  svg.outerHTML = html;
+
+  // Re-register SVG reference
+  document.getElementById('canvas') || (() => {
+    const svgEl = document.querySelector('.canvas-area svg');
+    if (svgEl) svgEl.id = 'canvas';
+  })();
+
+  renderLegend(visibleLayers);
+}
+
+function renderLegend(visibleLayers) {
+  const el = document.getElementById('legend');
+  let html = '';
+  Object.entries(LAYERS).forEach(([key, l]) => {
+    if (!visibleLayers.has(key)) return;
+    html += `<div class="legend-row"><span class="layer-swatch" style="background:${l.color}"></span> ${l.label}</div>`;
+  });
+  el.innerHTML = html;
+}
+
+// ── Zoom ──
+function zoom(delta) {
+  state.scale = Math.max(0.3, Math.min(3, state.scale + delta));
+  updateAll();
+}
+function resetZoom() {
+  state.scale = 1; state.panX = 0; state.panY = 0;
+  updateAll();
+}
+
+// ── Modal / Comments ──
+function openModal(nodeId) {
+  const node = nodes.find(n => n.id === nodeId);
+  if (!node) return;
+  state.modalNode = node;
+  document.getElementById('modal-title').textContent = node.label;
+  document.getElementById('modal-file').textContent = node.subtitle;
+  document.getElementById('modal-text').value = '';
+  document.getElementById('modal').classList.add('open');
+  setTimeout(() => document.getElementById('modal-text').focus(), 50);
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+  state.modalNode = null;
+}
+
+function saveComment() {
+  const text = document.getElementById('modal-text').value.trim();
+  if (!text || !state.modalNode) return;
+  state.comments.push({
+    id: Date.now(),
+    target: state.modalNode.id,
+    targetLabel: state.modalNode.label,
+    targetFile: state.modalNode.subtitle,
+    text
+  });
+  closeModal();
+  renderComments();
+  updateAll();
+}
+
+function deleteComment(id) {
+  state.comments = state.comments.filter(c => c.id !== id);
+  renderComments();
+  updateAll();
+}
+
+function renderComments() {
+  document.getElementById('comment-count').textContent = state.comments.length;
+  const el = document.getElementById('comments-list');
+  el.innerHTML = state.comments.map(c => `
+    <div class="comment-item">
+      <button class="delete-btn" onclick="deleteComment(${c.id})">✕</button>
+      <div class="target">${c.targetLabel}</div>
+      <div class="text">${c.text}</div>
+    </div>
+  `).join('');
+}
+
+// ── Prompt ──
+function updatePrompt() {
+  const el = document.getElementById('prompt-output');
+  if (state.comments.length === 0) {
+    el.textContent = 'Click components to add architectural feedback. Use layer/connection toggles to focus on subsystems.';
+    return;
+  }
+
+  const visibleLayers = Object.entries(state.layers).filter(([,v]) => v).map(([k]) => LAYERS[k].label);
+  let text = `This is my Neovim configuration architecture`;
+  if (visibleLayers.length < Object.keys(LAYERS).length) {
+    text += `, focusing on the ${visibleLayers.join(', ')} layers`;
+  }
+  text += '.\n\nFeedback on specific components:\n';
+
+  state.comments.forEach(c => {
+    text += `\n**${c.targetLabel}** (${c.targetFile}):\n${c.text}\n`;
+  });
+
+  el.textContent = text;
+}
+
+// ── Copy ──
+function copyPrompt() {
+  const text = document.getElementById('prompt-output').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('copy-btn');
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy Prompt'; btn.classList.remove('copied'); }, 1500);
+  });
+}
+
+// ── Keyboard ──
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeModal();
+  if (document.getElementById('modal').classList.contains('open')) return;
+  if (e.key === '+' || e.key === '=') zoom(0.15);
+  if (e.key === '-') zoom(-0.15);
+  if (e.key === '0') resetZoom();
+});
+
+// ── Pan with mouse drag on canvas ──
+let isPanning = false, panStart = { x: 0, y: 0 };
+document.querySelector('.canvas-area').addEventListener('mousedown', (e) => {
+  if (e.target.closest('g')) return; // clicked a node
+  isPanning = true;
+  panStart = { x: e.clientX, y: e.clientY };
+});
+document.addEventListener('mousemove', (e) => {
+  if (!isPanning) return;
+  state.panX -= (e.clientX - panStart.x) * 0.8 / state.scale;
+  state.panY -= (e.clientY - panStart.y) * 0.8 / state.scale;
+  panStart = { x: e.clientX, y: e.clientY };
+  updateAll();
+});
+document.addEventListener('mouseup', () => isPanning = false);
+
+// ── Mouse wheel zoom ──
+document.querySelector('.canvas-area').addEventListener('wheel', (e) => {
+  e.preventDefault();
+  zoom(e.deltaY > 0 ? -0.1 : 0.1);
+}, { passive: false });
+
+// ── Init ──
+renderControls();
+updateAll();
+</script>
+</body>
+</html>
