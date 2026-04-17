@@ -38,6 +38,7 @@ return {
 				"dockerfile",
 				"gitignore",
 				"xml",
+				"toml",
 			}
 			local installed = require("nvim-treesitter.config").get_installed()
 			local to_install = vim.iter(ensure_installed)

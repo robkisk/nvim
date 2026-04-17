@@ -10,7 +10,7 @@
   "d2-vim": { "branch": "master", "commit": "cb3eb7fcb1a2d45c4304bf2e91077d787b724a39" },
   "emoji.nvim": { "branch": "main", "commit": "34ccd330be21d0ba5050f9c4ced3fbc80d137347" },
   "friendly-snippets": { "branch": "main", "commit": "6cd7280adead7f586db6fccbd15d2cac7e2188b9" },
-  "fzf-lua": { "branch": "main", "commit": "bb3d0cde69bc13a75041b9c4ed971bb0e3ccf404" },
+  "fzf-lua": { "branch": "main", "commit": "83f7195972538beee3a40932b38ccd86c8cc0f06" },
   "gitsigns.nvim": { "branch": "main", "commit": "8d82c240f190fc33723d48c308ccc1ed8baad69d" },
   "indent-blankline.nvim": { "branch": "master", "commit": "d28a3f70721c79e3c5f6693057ae929f3d9c0a03" },
   "kanagawa.nvim": { "branch": "master", "commit": "aef7f5cec0a40dbe7f3304214850c472e2264b10" },

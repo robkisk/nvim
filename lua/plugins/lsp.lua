@@ -30,6 +30,7 @@ return {
         "jsonls",
         "lua_ls",
         "marksman",
+        "taplo",
         "terraformls",
         "ty",
         "yamlls",
