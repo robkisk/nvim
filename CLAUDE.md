@@ -12,9 +12,11 @@ Bootstrap sequence in `init.lua` loads five modules in order:
 
 1. `config/lazy` — lazy.nvim plugin manager (auto-installs on first launch)
 2. `config/options` — editor settings, filetype associations
-3. `config/autocmds` — autocommands (highlights, borders, spell, file reload)
+3. `config/autocmds` — autocommands (highlights, hlsearch toggle, yank flash, spell for markdown, comment-continuation opt-out, `<Leader>as` in tree buffers, `.tfstate` filetype reg)
 4. `config/utils` — utility functions (`P()` for debug printing)
 5. `config/mappings` — **all** keybindings live here (except LSP-attach and plugin-internal ones)
+
+File-reload autocmds (`checktime` on FocusGained etc.) live in `config/lazy`, not `autocmds.lua`.
 
 ## Plugin Conventions
 
@@ -49,18 +51,22 @@ Bootstrap sequence in `init.lua` loads five modules in order:
 
 ## Formatting
 
-conform.nvim (`lua/plugins/conform.lua`) runs format-on-save with 500ms timeout and LSP fallback. Formatters: stylua (Lua), ruff (Python), prettier (JS/TS/JSON/YAML/HTML/CSS/MD), shfmt (Bash).
+conform.nvim (`lua/plugins/conform.lua`) runs format-on-save with 500ms timeout and LSP fallback. Formatters: stylua (Lua), `ruff_organize_imports` + `ruff_format` (Python, two-step), prettier (JS/TS/JSON/YAML/HTML/CSS/MD, run with `--no-ignore`), shfmt (Bash/sh).
 
 ## Keybinding Pattern
 
 `lua/config/mappings.lua` uses a local `map()` wrapper that sets `noremap = true`, `silent = true`, and a `desc` string (for which-key discovery). All non-LSP, non-plugin-internal keymaps go here.
+
+**Exception:** the wrap-aware `j`/`k` mappings use raw `vim.keymap.set` with `expr = true` — the `map()` wrapper doesn't forward `expr`.
 
 ## Filetype Associations
 
 Defined in `lua/config/options.lua`:
 - `.databrickscfg` → shell
 - `.env` / `.env.*` → shell
-- `.tfstate` → json (via autocommand in `autocmds.lua`)
+
+Also registered via `vim.filetype.add` in `lua/config/autocmds.lua`:
+- `.tfstate` → json
 
 ## MCP Servers
 
@@ -73,9 +79,19 @@ Defined in `lua/config/options.lua`:
 
 Use lsp-config/mason MCPs instead of web searches when modifying LSP or Mason config.
 
+## Supporting Directories
+
+- `schemas/databricks_bundle.json` — JSON schema consumed by yaml-companion.nvim to validate Databricks Asset Bundle YAML (wired in `lua/plugins/lsp.lua`)
+- `styles/databricks-markdown.css` — stylesheet for markdown-preview.nvim
+- `nvim-code-map.html` — generated code map (not source)
+
+See `README.md` for the exhaustive plugin inventory and keymap tables — do not duplicate those here.
+
 ## Testing Changes
 
 Verify plugin/config changes headless before reporting done:
 - `nvim --headless -c "edit <file>" -c "sleep 3" -c "qa" 2>&1` — check for runtime errors
 - `nvim --headless "+Lazy! sync" -c "sleep 20" -c "qa" 2>&1` — sync plugins after branch/spec changes
 - `nvim --clean --headless -c "edit <file>" -c "sleep 3" -c "qa" 2>&1` — isolate: plugins vs Neovim runtime
+
+Interactive troubleshooting (inside nvim): `:Lazy` (plugin state), `:Mason` (LSP binary state), `:LspInfo` (attached servers), `:checkhealth` (global).
