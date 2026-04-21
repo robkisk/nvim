@@ -60,6 +60,9 @@ end, { desc = "Recent files" })
 -- Markdown
 map("n", "<Leader>mr", "<cmd>RenderMarkdown toggle<cr>", { desc = "Toggle markdown rendering" })
 map("n", "<Leader>mp", "<cmd>MarkdownPreviewToggle<cr>", { desc = "Toggle browser markdown preview" })
+map("n", "<Leader>mt", function()
+	require("fzf-lua").lsp_document_symbols()
+end, { desc = "Document symbols / TOC" })
 
 -- Unified diff
 map("n", "<Leader>ud", "<cmd>Unified<cr>", { desc = "Diff against HEAD" })
