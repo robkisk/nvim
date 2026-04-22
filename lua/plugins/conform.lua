@@ -35,6 +35,12 @@ return {
 			prettier = {
 				prepend_args = { "--no-ignore" },
 			},
+			ruff_format = {
+				prepend_args = { "--no-respect-gitignore" },
+			},
+			ruff_organize_imports = {
+				prepend_args = { "--no-respect-gitignore" },
+			},
 		},
 	},
 }
