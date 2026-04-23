@@ -13,4 +13,16 @@ return {
     cmd = "Unified",
     opts = {},
   },
+  {
+    "sindrets/diffview.nvim",
+    cmd = {
+      "DiffviewOpen",
+      "DiffviewClose",
+      "DiffviewToggleFiles",
+      "DiffviewFocusFiles",
+      "DiffviewRefresh",
+      "DiffviewFileHistory",
+    },
+    opts = { enhanced_diff_hl = true },
+  },
 }

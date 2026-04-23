@@ -3,7 +3,7 @@ return {
 	lazy = false,
 	opts = {
 		preview = {
-			enable = true,
+			enable = false,
 		},
 	},
 }

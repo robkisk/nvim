@@ -60,6 +60,7 @@ end, { desc = "Recent files" })
 -- Markdown
 map("n", "<Leader>mr", "<cmd>RenderMarkdown toggle<cr>", { desc = "Toggle markdown rendering" })
 map("n", "<Leader>mp", "<cmd>MarkdownPreviewToggle<cr>", { desc = "Toggle browser markdown preview" })
+map("n", "<Leader>mv", "<cmd>Markview toggle<cr>", { desc = "Toggle Markview preview (buffer)" })
 map("n", "<Leader>mt", function()
 	require("fzf-lua").lsp_document_symbols()
 end, { desc = "Document symbols / TOC" })
@@ -68,10 +69,22 @@ end, { desc = "Document symbols / TOC" })
 map("n", "<Leader>ud", "<cmd>Unified<cr>", { desc = "Diff against HEAD" })
 map("n", "<Leader>ur", "<cmd>Unified reset<cr>", { desc = "Close diff view" })
 
+-- Diffview
+map("n", "<Leader>dv", "<cmd>DiffviewOpen<cr>", { desc = "Diffview: open" })
+map("n", "<Leader>dc", "<cmd>DiffviewClose<cr>", { desc = "Diffview: close" })
+map("n", "<Leader>dh", "<cmd>DiffviewFileHistory<cr>", { desc = "Diffview: repo file history" })
+map("n", "<Leader>df", "<cmd>DiffviewFileHistory %<cr>", { desc = "Diffview: current file history" })
+
 -- Buffer navigation
 map("n", "<Tab>", ":bnext<CR>", { desc = "Next buffer" })
 map("n", "<S-Tab>", ":bprevious<CR>", { desc = "Previous buffer" })
-map("n", "<Leader>x", ":bdelete<CR>", { desc = "Close buffer" })
+map("n", "<Leader>x", function()
+	if vim.bo.modified then
+		vim.notify("Buffer has unsaved changes. Save or use :bdelete!", vim.log.levels.WARN)
+	else
+		vim.cmd("bdelete")
+	end
+end, { desc = "Close buffer" })
 
 -- Claude Code
 map("n", "<Leader>ac", "<cmd>ClaudeCode<CR>", { desc = "Toggle Claude" })
