@@ -39,6 +39,10 @@ return {
 				"gitignore",
 				"xml",
 				"toml",
+				"go",
+				"gomod",
+				"gosum",
+				"gowork",
 			}
 			local installed = require("nvim-treesitter.config").get_installed()
 			local to_install = vim.iter(ensure_installed)
