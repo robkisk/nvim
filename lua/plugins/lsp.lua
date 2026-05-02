@@ -32,7 +32,7 @@ return {
         "marksman",
         "taplo",
         "terraformls",
-        "ty",
+        "ty@0.0.32",
         "yamlls",
       },
       automatic_enable = {
