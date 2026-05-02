@@ -49,9 +49,13 @@ File-reload autocmds (`checktime` on FocusGained etc.) live in `config/lazy`, no
 
 **yamlls exception:** yamlls is excluded from mason-lspconfig's automatic enable because it's configured manually through yaml-companion.nvim with a custom Databricks bundle schema at `schemas/databricks_bundle.json`.
 
+**ty version pin:** `ty@0.0.32` is pinned in mason-lspconfig's `ensure_installed` (Python type checker). Do not unpin without testing — newer ty releases have shipped breaking changes.
+
 ## Formatting
 
-conform.nvim (`lua/plugins/conform.lua`) runs format-on-save with 500ms timeout and LSP fallback. Formatters: stylua (Lua), `ruff_organize_imports` + `ruff_format` (Python, two-step), prettier (JS/TS/JSON/YAML/HTML/CSS/MD, run with `--no-ignore`), shfmt (Bash/sh).
+conform.nvim (`lua/plugins/conform.lua`) runs format-on-save with 500ms timeout (2000ms for SQL) and LSP fallback. Formatters: stylua (Lua), `ruff_organize_imports` + `ruff_format` (Python, two-step, both run with `--no-respect-gitignore`), prettier (JS/TS/JSON/YAML/HTML/CSS/MD, run with `--no-ignore`), shfmt (Bash/sh), goimports (Go), sqlfluff (SQL, `--dialect databricks`).
+
+**SQL Metric View gotcha:** `.sql` files starting with `source:`, `measures:`, `dimensions:`, or `joins:` skip auto-format entirely — these are YAML-in-.sql Databricks Metric View definitions and sqlfluff can't parse them.
 
 ## Keybinding Pattern
 
@@ -70,14 +74,9 @@ Also registered via `vim.filetype.add` in `lua/config/autocmds.lua`:
 
 ## MCP Servers
 
-`.mcp.json` configures MCP servers for this project:
-- `fetch` — general URL fetching
-- `lsp-config` MCP — nvim-lspconfig docs and source
-- `mason` MCP — mason.nvim docs and source
-- `Claude Code Skills` MCP — Anthropic skills documentation
-- `Hobson Agents` MCP — Hobson agents documentation
+`.mcp.json` configures the MCP servers visible from this directory. The list changes frequently (~30 servers across Databricks tooling, browser automation, and code search) — read `.mcp.json` directly when you need the current set rather than relying on a list here.
 
-Use lsp-config/mason MCPs instead of web searches when modifying LSP or Mason config.
+For Neovim/Lua-specific lookups (lsp config, mason, plugin source), the `serena` MCP is the primary code-search tool. For web docs that aren't covered, fall back to `WebFetch`.
 
 ## Supporting Directories
 
