@@ -123,6 +123,23 @@ return {
           source = true,
         },
       })
+
+      -- Filter marksman's noisy "Ambiguous link to document" warnings.
+      -- Marksman's resolver matches the same on-disk file via multiple
+      -- strategies (path + basename + frontmatter title) and reports
+      -- ambiguity even when only one file exists. Harmless false positive.
+      local orig_publish = vim.lsp.handlers["textDocument/publishDiagnostics"]
+      vim.lsp.handlers["textDocument/publishDiagnostics"] = function(err, result, ctx, config)
+        if result and result.diagnostics and ctx and ctx.client_id then
+          local client = vim.lsp.get_client_by_id(ctx.client_id)
+          if client and client.name == "marksman" then
+            result.diagnostics = vim.tbl_filter(function(d)
+              return not (d.message and d.message:match("^Ambiguous link to document"))
+            end, result.diagnostics)
+          end
+        end
+        return orig_publish(err, result, ctx, config)
+      end
     end,
   },
 }

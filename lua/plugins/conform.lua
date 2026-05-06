@@ -53,7 +53,7 @@ return {
 		end,
 		formatters = {
 			prettier = {
-				prepend_args = { "--no-ignore" },
+				prepend_args = { "--ignore-path", "/dev/null" },
 			},
 			ruff_format = {
 				prepend_args = { "--no-respect-gitignore" },

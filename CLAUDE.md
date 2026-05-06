@@ -53,7 +53,7 @@ File-reload autocmds (`checktime` on FocusGained etc.) live in `config/lazy`, no
 
 ## Formatting
 
-conform.nvim (`lua/plugins/conform.lua`) runs format-on-save with 500ms timeout (2000ms for SQL) and LSP fallback. Formatters: stylua (Lua), `ruff_organize_imports` + `ruff_format` (Python, two-step, both run with `--no-respect-gitignore`), prettier (JS/TS/JSON/YAML/HTML/CSS/MD, run with `--no-ignore`), shfmt (Bash/sh), goimports (Go), sqlfluff (SQL, `--dialect databricks`).
+conform.nvim (`lua/plugins/conform.lua`) runs format-on-save with 500ms timeout (2000ms for SQL) and LSP fallback. Formatters: stylua (Lua), `ruff_organize_imports` + `ruff_format` (Python, two-step, both run with `--no-respect-gitignore`), prettier (JS/TS/JSON/YAML/HTML/CSS/MD, run with `--ignore-path /dev/null` to bypass `.gitignore` and `.prettierignore` — Prettier 3 removed `--no-ignore`), shfmt (Bash/sh), goimports (Go), sqlfluff (SQL, `--dialect databricks`).
 
 **SQL Metric View gotcha:** `.sql` files starting with `source:`, `measures:`, `dimensions:`, or `joins:` skip auto-format entirely — these are YAML-in-.sql Databricks Metric View definitions and sqlfluff can't parse them.
 
