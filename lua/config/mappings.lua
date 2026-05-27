@@ -66,6 +66,31 @@ map("n", "<Leader>mL", "<cmd>LivePreview close<cr>", { desc = "Live preview: sto
 map("n", "<Leader>mt", function()
 	require("fzf-lua").lsp_document_symbols()
 end, { desc = "Document symbols / TOC" })
+map("n", "<Leader>mc", function()
+	local callouts = {
+		"NOTE",
+		"TIP",
+		"IMPORTANT",
+		"WARNING",
+		"CAUTION",
+		"info",
+		"success",
+		"question",
+		"failure",
+		"danger",
+		"bug",
+		"example",
+		"quote",
+		"abstract",
+	}
+	vim.ui.select(callouts, { prompt = "Callout type:" }, function(choice)
+		if not choice then
+			return
+		end
+		vim.api.nvim_put({ "> [!" .. choice .. "]", "> " }, "l", true, true)
+		vim.cmd("startinsert!")
+	end)
+end, { desc = "Insert markdown callout" })
 
 -- Unified diff
 map("n", "<Leader>ud", "<cmd>Unified<cr>", { desc = "Diff against HEAD" })

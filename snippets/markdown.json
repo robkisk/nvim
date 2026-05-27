@@ -1,0 +1,72 @@
+{
+  "Callout: Note": {
+    "prefix": "!note",
+    "body": ["> [!NOTE]", "> $0"],
+    "description": "GitHub-flavored NOTE callout"
+  },
+  "Callout: Tip": {
+    "prefix": "!tip",
+    "body": ["> [!TIP]", "> $0"],
+    "description": "GitHub-flavored TIP callout"
+  },
+  "Callout: Important": {
+    "prefix": "!imp",
+    "body": ["> [!IMPORTANT]", "> $0"],
+    "description": "GitHub-flavored IMPORTANT callout"
+  },
+  "Callout: Warning": {
+    "prefix": "!warn",
+    "body": ["> [!WARNING]", "> $0"],
+    "description": "GitHub-flavored WARNING callout"
+  },
+  "Callout: Caution": {
+    "prefix": "!cau",
+    "body": ["> [!CAUTION]", "> $0"],
+    "description": "GitHub-flavored CAUTION callout"
+  },
+  "Callout: Info": {
+    "prefix": "!info",
+    "body": ["> [!info]", "> $0"],
+    "description": "Obsidian-style info callout"
+  },
+  "Callout: Success": {
+    "prefix": "!success",
+    "body": ["> [!success]", "> $0"],
+    "description": "Obsidian-style success callout"
+  },
+  "Callout: Question": {
+    "prefix": "!q",
+    "body": ["> [!question]", "> $0"],
+    "description": "Obsidian-style question callout"
+  },
+  "Callout: Failure": {
+    "prefix": "!fail",
+    "body": ["> [!failure]", "> $0"],
+    "description": "Obsidian-style failure callout"
+  },
+  "Callout: Danger": {
+    "prefix": "!danger",
+    "body": ["> [!danger]", "> $0"],
+    "description": "Obsidian-style danger callout"
+  },
+  "Callout: Bug": {
+    "prefix": "!bug",
+    "body": ["> [!bug]", "> $0"],
+    "description": "Obsidian-style bug callout"
+  },
+  "Callout: Example": {
+    "prefix": "!ex",
+    "body": ["> [!example]", "> $0"],
+    "description": "Obsidian-style example callout"
+  },
+  "Callout: Quote": {
+    "prefix": "!quote",
+    "body": ["> [!quote]", "> $0"],
+    "description": "Obsidian-style quote callout"
+  },
+  "Callout: Abstract": {
+    "prefix": "!abstract",
+    "body": ["> [!abstract]", "> $0"],
+    "description": "Obsidian-style abstract callout"
+  }
+}
