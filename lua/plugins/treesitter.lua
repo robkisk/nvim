@@ -8,6 +8,10 @@ return {
 			"windwp/nvim-ts-autotag",
 		},
 		init = function()
+			-- No zsh grammar exists in nvim-treesitter; map zsh buffers to the
+			-- bash parser so highlighting, folds, AND `=` indent queries resolve.
+			-- Without this, indentexpr() finds no query for `zsh` and `=` no-ops.
+			vim.treesitter.language.register("bash", "zsh")
 			vim.api.nvim_create_autocmd("FileType", {
 				callback = function()
 					pcall(vim.treesitter.start)
@@ -44,6 +48,7 @@ return {
 				"gosum",
 				"gowork",
 				"sql",
+				"rust",
 			}
 			local installed = require("nvim-treesitter.config").get_installed()
 			local to_install = vim.iter(ensure_installed)

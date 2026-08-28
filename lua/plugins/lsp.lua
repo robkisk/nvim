@@ -30,13 +30,16 @@ return {
         "jsonls",
         "lua_ls",
         "marksman",
+        "rust_analyzer",
         "taplo",
         "terraformls",
         "ty@0.0.32",
         "yamlls",
       },
       automatic_enable = {
-        exclude = { "yamlls" },
+        -- rust_analyzer is enabled conditionally in nvim-lspconfig's config
+        -- (only when a Rust toolchain is on PATH) to avoid a hard error.
+        exclude = { "yamlls", "rust_analyzer" },
       },
     },
   },
@@ -83,6 +86,34 @@ return {
     "neovim/nvim-lspconfig",
     event = { "BufReadPre", "BufNewFile" },
     config = function()
+      -- lua_ls: teach it the Neovim runtime. Without this it flags `vim` as an
+      -- undefined global on every line of this config. Library is scoped to
+      -- $VIMRUNTIME + luv (not the whole lazy plugin dir) to keep indexing fast.
+      vim.lsp.config("lua_ls", {
+        settings = {
+          Lua = {
+            runtime = { version = "LuaJIT" },
+            workspace = {
+              checkThirdParty = false,
+              library = {
+                vim.env.VIMRUNTIME .. "/lua",
+                "${3rd}/luv/library",
+              },
+            },
+            diagnostics = { globals = { "vim" } },
+          },
+        },
+      })
+
+      -- rust_analyzer's root_dir shells out to `rustc` to locate the sysroot and
+      -- throws if no Rust toolchain is on PATH, forcing a "Press ENTER" error
+      -- prompt on every .rs buffer. It's excluded from mason-lspconfig's
+      -- automatic_enable above; enable it only when a toolchain is present, so it
+      -- auto-activates on the next launch once rustc is installed.
+      if vim.fn.executable("rustc") == 1 then
+        vim.lsp.enable("rust_analyzer")
+      end
+
       -- LSP keybindings (attached when LSP connects)
       vim.api.nvim_create_autocmd("LspAttach", {
         group = vim.api.nvim_create_augroup("UserLspConfig", { clear = true }),

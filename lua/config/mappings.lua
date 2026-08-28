@@ -24,6 +24,25 @@ map("n", "<Leader>Y", '"+y$', { desc = "Yank line to clipboard" })
 map({ "n", "v" }, "<Leader>p", '"+p', { desc = "Paste from clipboard" })
 map({ "n", "v" }, "<Leader>P", '"+P', { desc = "Paste before from clipboard" })
 
+-- Copy current file path to clipboard
+map("n", "<Leader>cp", function()
+	local path = vim.fn.expand("%:p")
+	vim.fn.setreg("+", path)
+	vim.notify("Copied: " .. path)
+end, { desc = "Copy absolute file path" })
+
+map("n", "<Leader>cP", function()
+	local path = vim.fn.expand("%:.")
+	vim.fn.setreg("+", path)
+	vim.notify("Copied: " .. path)
+end, { desc = "Copy relative file path" })
+
+map("n", "<Leader>cn", function()
+	local name = vim.fn.expand("%:t")
+	vim.fn.setreg("+", name)
+	vim.notify("Copied: " .. name)
+end, { desc = "Copy filename only" })
+
 -- File explorer (nvim-tree)
 map("n", "<Leader>t", ":NvimTreeToggle<CR>", { desc = "Toggle file explorer" })
 map("n", "<Leader>e", ":NvimTreeFocus<CR>", { desc = "Focus file explorer" })

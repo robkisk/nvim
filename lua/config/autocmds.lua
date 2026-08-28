@@ -7,15 +7,22 @@ vim.filetype.add({
 local augroup = vim.api.nvim_create_augroup("UserConfig", { clear = true })
 
 -- Set border colors on colorscheme change
+local function set_border_highlights()
+  vim.api.nvim_set_hl(0, "FloatBorder", { fg = "#b4befe" })
+  vim.api.nvim_set_hl(0, "TelescopeBorder", { fg = "#b4befe" })
+  vim.api.nvim_set_hl(0, "IblScope", { fg = "#b4befe" })
+end
+
 vim.api.nvim_create_autocmd("ColorScheme", {
   group = augroup,
   pattern = "*",
-  callback = function()
-    vim.api.nvim_set_hl(0, "FloatBorder", { fg = "#b4befe" })
-    vim.api.nvim_set_hl(0, "TelescopeBorder", { fg = "#b4befe" })
-    vim.api.nvim_set_hl(0, "IblScope", { fg = "#b4befe" })
-  end,
+  callback = set_border_highlights,
 })
+
+-- Apply once on load: lazy.nvim runs `:colorscheme` from within
+-- require("config.lazy") on init.lua's first line, so the ColorScheme event
+-- has already fired by the time this file registers the autocmd above.
+set_border_highlights()
 
 -- Only highlight when actively searching
 vim.api.nvim_create_autocmd("CmdlineEnter", {

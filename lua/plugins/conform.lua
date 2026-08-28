@@ -27,6 +27,10 @@ return {
 			markdown = { "prettier" },
 			bash = { "shfmt" },
 			sh = { "shfmt" },
+			-- No zsh: neither shfmt (no zsh grammar — chokes on ${${@[(r)...]}})
+			-- nor beautysh (naive brace counter — desyncs on awk '{...}' in fzf
+			-- --preview blocks) can reliably format real zsh. Use Treesitter `=`
+			-- (gg=G or visual `=`) for on-demand reindent instead.
 			sql = { "sqlfluff" },
 		},
 		format_on_save = function(bufnr)
