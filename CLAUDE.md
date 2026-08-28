@@ -107,7 +107,6 @@ For Neovim/Lua-specific lookups (lsp config, mason, plugin source), the `serena`
 
 - `schemas/databricks_bundle.json` — JSON schema consumed by yaml-companion.nvim to validate Databricks Asset Bundle YAML (wired in `lua/plugins/lsp.lua`)
 - `styles/databricks-markdown.css` — stylesheet for markdown-preview.nvim
-- `nvim-code-map.html` — generated code map (not source)
 
 See `README.md` for the exhaustive plugin inventory and keymap tables — do not duplicate those here.
 
