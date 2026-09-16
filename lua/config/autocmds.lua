@@ -75,11 +75,14 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
--- Enable spell check for markdown files
+-- Markdown buffers: spell check + Treesitter section folding (open unfolded)
 vim.api.nvim_create_autocmd("FileType", {
   group = augroup,
   pattern = "markdown",
   callback = function()
     vim.opt_local.spell = true
+    vim.opt_local.foldmethod = "expr"
+    vim.opt_local.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+    vim.opt_local.foldlevel = 99
   end,
 })

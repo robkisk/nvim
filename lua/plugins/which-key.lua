@@ -10,6 +10,6 @@ return {
       end,
       desc = "Buffer Local Keymaps",
     },
-    { "<leader>a", group = "AI (opencode)" },
+    { "<leader>a", group = "AI (Claude Code)" },
   },
 }

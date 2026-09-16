@@ -136,8 +136,12 @@ return {
           vim.keymap.set({ "n", "v" }, "<Leader>ca", vim.lsp.buf.code_action, vim.tbl_extend("force", opts, { desc = "Code action" }))
 
           -- Diagnostics
-          vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, vim.tbl_extend("force", opts, { desc = "Previous diagnostic" }))
-          vim.keymap.set("n", "]d", vim.diagnostic.goto_next, vim.tbl_extend("force", opts, { desc = "Next diagnostic" }))
+          vim.keymap.set("n", "[d", function()
+            vim.diagnostic.jump({ count = -1, float = true })
+          end, vim.tbl_extend("force", opts, { desc = "Previous diagnostic" }))
+          vim.keymap.set("n", "]d", function()
+            vim.diagnostic.jump({ count = 1, float = true })
+          end, vim.tbl_extend("force", opts, { desc = "Next diagnostic" }))
           vim.keymap.set("n", "<Leader>d", vim.diagnostic.open_float, vim.tbl_extend("force", opts, { desc = "Show diagnostic" }))
         end,
       })

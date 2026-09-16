@@ -79,7 +79,6 @@ end, { desc = "Recent files" })
 -- Markdown
 map("n", "<Leader>mr", "<cmd>RenderMarkdown toggle<cr>", { desc = "Toggle markdown rendering" })
 map("n", "<Leader>mp", "<cmd>MarkdownPreviewToggle<cr>", { desc = "Toggle browser markdown preview" })
-map("n", "<Leader>mv", "<cmd>Markview toggle<cr>", { desc = "Toggle Markview preview (buffer)" })
 map("n", "<Leader>ml", "<cmd>LivePreview start<cr>", { desc = "Live preview (browser, md/html/adoc/svg)" })
 map("n", "<Leader>mL", "<cmd>LivePreview close<cr>", { desc = "Live preview: stop server" })
 map("n", "<Leader>mt", function()
@@ -142,9 +141,6 @@ map("n", "<Leader>ab", "<cmd>ClaudeCodeAdd %<CR>", { desc = "Add buffer to Claud
 map("v", "<Leader>as", "<cmd>ClaudeCodeSend<CR>", { desc = "Send selection to Claude" })
 map("n", "<Leader>aa", "<cmd>ClaudeCodeDiffAccept<CR>", { desc = "Accept Claude diff" })
 map("n", "<Leader>ad", "<cmd>ClaudeCodeDiffDeny<CR>", { desc = "Deny Claude diff" })
-
--- Clipboard integration
-vim.opt.clipboard = "unnamedplus"
 
 -- Terminal window navigation (escape terminal mode + move)
 map("t", "<C-w>h", "<C-\\><C-n><C-w>h", { desc = "Move to left window" })
