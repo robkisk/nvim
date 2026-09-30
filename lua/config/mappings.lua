@@ -137,7 +137,16 @@ map("n", "<Leader>af", "<cmd>ClaudeCodeFocus<CR>", { desc = "Focus Claude" })
 map("n", "<Leader>ar", "<cmd>ClaudeCode --resume<CR>", { desc = "Resume Claude" })
 map("n", "<Leader>aC", "<cmd>ClaudeCode --continue<CR>", { desc = "Continue Claude" })
 map("n", "<Leader>am", "<cmd>ClaudeCodeSelectModel<CR>", { desc = "Select Claude model" })
-map("n", "<Leader>ab", "<cmd>ClaudeCodeAdd %<CR>", { desc = "Add buffer to Claude" })
+-- Lua API instead of `ClaudeCodeAdd %`: the command splits its args on whitespace,
+-- so paths with spaces fail with "Too many arguments" (coder/claudecode.nvim#314)
+map("n", "<Leader>ab", function()
+	local path = vim.api.nvim_buf_get_name(0)
+	if vim.fn.filereadable(path) == 0 then
+		vim.notify("Buffer is not a file on disk", vim.log.levels.WARN)
+		return
+	end
+	require("claudecode").send_at_mention(path, nil, nil, "ClaudeCodeAdd")
+end, { desc = "Add buffer to Claude" })
 map("v", "<Leader>as", "<cmd>ClaudeCodeSend<CR>", { desc = "Send selection to Claude" })
 map("n", "<Leader>aa", "<cmd>ClaudeCodeDiffAccept<CR>", { desc = "Accept Claude diff" })
 map("n", "<Leader>ad", "<cmd>ClaudeCodeDiffDeny<CR>", { desc = "Deny Claude diff" })
