@@ -79,7 +79,15 @@ end, { desc = "Recent files" })
 -- Markdown
 map("n", "<Leader>mr", "<cmd>RenderMarkdown toggle<cr>", { desc = "Toggle markdown rendering" })
 map("n", "<Leader>mp", "<cmd>MarkdownPreviewToggle<cr>", { desc = "Toggle browser markdown preview" })
-map("n", "<Leader>ml", "<cmd>LivePreview start<cr>", { desc = "Live preview (browser, md/html/adoc/svg)" })
+map("n", "<Leader>ml", function()
+	-- Serve from cwd when the file is under it (keeps ../ links working); otherwise
+	-- root at the file's dir, or the plugin builds a URL of /nil.
+	local cfg = require("livepreview.config").config
+	local file = vim.fs.normalize(vim.api.nvim_buf_get_name(0))
+	local cwd = vim.fs.normalize(vim.uv.cwd() or "") .. "/"
+	cfg.dynamic_root = file:sub(1, #cwd) ~= cwd
+	vim.cmd("LivePreview start")
+end, { desc = "Live preview (browser, md/html/adoc/svg)" })
 map("n", "<Leader>mL", "<cmd>LivePreview close<cr>", { desc = "Live preview: stop server" })
 map("n", "<Leader>mt", function()
 	require("fzf-lua").lsp_document_symbols()
