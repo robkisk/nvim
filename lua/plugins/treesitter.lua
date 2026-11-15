@@ -13,10 +13,29 @@ return {
 			-- Without this, indentexpr() finds no query for `zsh` and `=` no-ops.
 			vim.treesitter.language.register("bash", "zsh")
 			vim.api.nvim_create_autocmd("FileType", {
-				callback = function()
-					pcall(vim.treesitter.start)
-					if vim.bo.filetype ~= "yaml" then
-						vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+				group = vim.api.nvim_create_augroup("UserTreesitter", { clear = true }),
+				callback = function(ev)
+					local ft = vim.bo[ev.buf].filetype
+					local lang = vim.treesitter.language.get_lang(ft)
+					if not lang then
+						return
+					end
+					-- pcall: query.get asserts the parser loads (queries without a parser)
+					local function has_query(name)
+						local ok, query = pcall(vim.treesitter.query.get, lang, name)
+						return ok and query ~= nil
+					end
+					-- Start only when the language ships a highlights query. start()
+					-- turns regex syntax off, so starting on a parser that has no
+					-- queries leaves the buffer with no highlighting at all.
+					if has_query("highlights") then
+						pcall(vim.treesitter.start, ev.buf, lang)
+					end
+					-- Only take over indent when the language ships an indents query.
+					-- Otherwise indentexpr() returns -1 and clobbers runtime indent
+					-- scripts (make, just) with plain autoindent.
+					if ft ~= "yaml" and has_query("indents") then
+						vim.bo[ev.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
 					end
 				end,
 			})
@@ -49,6 +68,16 @@ return {
 				"gowork",
 				"sql",
 				"rust",
+				"terraform",
+				"hcl",
+				"gitcommit",
+				"git_config",
+				"git_rebase",
+				"diff",
+				"make",
+				"ssh_config",
+				"ini",
+				"regex",
 			}
 			local installed = require("nvim-treesitter.config").get_installed()
 			local to_install = vim.iter(ensure_installed)

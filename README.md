@@ -19,40 +19,44 @@ lua/
 
 ## Plugins
 
-| Category          | Plugins                                                                                                                                                                                                                                                                                                                                                                                     |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Colorscheme**   | [kanagawa.nvim](https://github.com/rebelot/kanagawa.nvim) (wave)                                                                                                                                                                                                                                                                                                                            |
-| **Statusline**    | [lualine.nvim](https://github.com/nvim-lualine/lualine.nvim) with buffer tabs                                                                                                                                                                                                                                                                                                               |
-| **File Explorer** | [nvim-tree.lua](https://github.com/nvim-tree/nvim-tree.lua)                                                                                                                                                                                                                                                                                                                                 |
-| **Fuzzy Finder**  | [fzf-lua](https://github.com/ibhagwan/fzf-lua)                                                                                                                                                                                                                                                                                                                                              |
-| **LSP**           | [nvim-lspconfig](https://github.com/neovim/nvim-lspconfig) + [mason.nvim](https://github.com/williamboman/mason.nvim)                                                                                                                                                                                                                                                                       |
-| **Completion**    | [nvim-cmp](https://github.com/hrsh7th/nvim-cmp) + [LuaSnip](https://github.com/L3MON4D3/LuaSnip)                                                                                                                                                                                                                                                                                            |
-| **Formatting**    | [conform.nvim](https://github.com/stevearc/conform.nvim) (format on save)                                                                                                                                                                                                                                                                                                                   |
-| **Treesitter**    | [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter) (`main` branch) + [nvim-ts-autotag](https://github.com/windwp/nvim-ts-autotag)                                                                                                                                                                                                                                        |
-| **Git**           | [gitsigns.nvim](https://github.com/lewis6991/gitsigns.nvim), [vim-fugitive](https://github.com/tpope/vim-fugitive), [unified.nvim](https://github.com/4e554c4c/unified.nvim), [diffview.nvim](https://github.com/sindrets/diffview.nvim)                                                                                                                                                    |
-| **AI**            | [claudecode.nvim](https://github.com/coder/claudecode.nvim) (terminal split, diff review)                                                                                                                                                                                                                                                                                                   |
-| **Markdown**      | [markview.nvim](https://github.com/OXY2DEV/markview.nvim), [render-markdown.nvim](https://github.com/MeanderingProgrammer/render-markdown.nvim), [markdown-preview.nvim](https://github.com/iamcco/markdown-preview.nvim), [bullets.vim](https://github.com/dkarter/bullets.vim), [live-preview.nvim](https://github.com/brianhuster/live-preview.nvim) (browser preview: md/html/adoc/svg) |
-| **Diagrams**      | [d2-vim](https://github.com/terrastruct/d2-vim), [tree-sitter-d2](https://github.com/pleshevskiy/tree-sitter-d2)                                                                                                                                                                                                                                                                            |
-| **UI**            | [which-key.nvim](https://github.com/folke/which-key.nvim), [indent-blankline.nvim](https://github.com/lukas-reineke/indent-blankline.nvim)                                                                                                                                                                                                                                                  |
-| **Misc**          | [emoji.nvim](https://github.com/allaman/emoji.nvim), [mini.icons](https://github.com/echasnovski/mini.icons), [yaml-companion.nvim](https://github.com/mosheavni/yaml-companion.nvim), [vim-just](https://github.com/NoahTheDuke/vim-just) (Justfile syntax), [snacks.nvim](https://github.com/folke/snacks.nvim) (claudecode dep)                                                          |
+| Category          | Plugins                                                                                                                                                                                                                                                                                                                              |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Colorscheme**   | [kanagawa.nvim](https://github.com/rebelot/kanagawa.nvim) (wave)                                                                                                                                                                                                                                                                     |
+| **Statusline**    | [lualine.nvim](https://github.com/nvim-lualine/lualine.nvim) with buffer tabs                                                                                                                                                                                                                                                        |
+| **File Explorer** | [nvim-tree.lua](https://github.com/nvim-tree/nvim-tree.lua)                                                                                                                                                                                                                                                                          |
+| **Fuzzy Finder**  | [fzf-lua](https://github.com/ibhagwan/fzf-lua)                                                                                                                                                                                                                                                                                       |
+| **Motion**        | [flash.nvim](https://github.com/folke/flash.nvim) (label jumps, enhanced `f`/`t`, Treesitter selection)                                                                                                                                                                                                                              |
+| **Find/Replace**  | [grug-far.nvim](https://github.com/MagicDuck/grug-far.nvim) (project-wide search & replace)                                                                                                                                                                                                                                          |
+| **LSP**           | [nvim-lspconfig](https://github.com/neovim/nvim-lspconfig) + [mason.nvim](https://github.com/mason-org/mason.nvim) + [SchemaStore.nvim](https://github.com/b0o/SchemaStore.nvim) (JSON schema catalog)                                                                                                                               |
+| **Completion**    | [nvim-cmp](https://github.com/hrsh7th/nvim-cmp) + [LuaSnip](https://github.com/L3MON4D3/LuaSnip)                                                                                                                                                                                                                                     |
+| **Formatting**    | [conform.nvim](https://github.com/stevearc/conform.nvim) (format on save)                                                                                                                                                                                                                                                            |
+| **Treesitter**    | [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter) (`main` branch) + [nvim-ts-autotag](https://github.com/windwp/nvim-ts-autotag)                                                                                                                                                                                 |
+| **Git**           | [gitsigns.nvim](https://github.com/lewis6991/gitsigns.nvim), [vim-fugitive](https://github.com/tpope/vim-fugitive), [unified.nvim](https://github.com/axkirillov/unified.nvim), [diffview.nvim](https://github.com/sindrets/diffview.nvim), [snacks.nvim](https://github.com/folke/snacks.nvim) (gh, gitbrowse, lazygit)             |
+| **AI**            | [claudecode.nvim](https://github.com/coder/claudecode.nvim) (terminal split, diff review)                                                                                                                                                                                                                                            |
+| **Markdown**      | [render-markdown.nvim](https://github.com/MeanderingProgrammer/render-markdown.nvim), [markdown-preview.nvim](https://github.com/iamcco/markdown-preview.nvim), [autolist.nvim](https://github.com/gaoDean/autolist.nvim), [live-preview.nvim](https://github.com/brianhuster/live-preview.nvim) (browser preview: md/html/adoc/svg) |
+| **Diagrams**      | [d2-vim](https://github.com/terrastruct/d2-vim), [tree-sitter-d2](https://github.com/ravsii/tree-sitter-d2)                                                                                                                                                                                                                          |
+| **Secrets**       | [camouflage.nvim](https://github.com/zeybek/camouflage.nvim) (masks tokens and keys on screen; demo mode)                                                                                                                                                                                                                            |
+| **UI**            | [which-key.nvim](https://github.com/folke/which-key.nvim), [indent-blankline.nvim](https://github.com/lukas-reineke/indent-blankline.nvim)                                                                                                                                                                                           |
+| **Misc**          | [emoji.nvim](https://github.com/allaman/emoji.nvim), [mini.icons](https://github.com/nvim-mini/mini.icons), [yaml-companion.nvim](https://github.com/mosheavni/yaml-companion.nvim), [vim-just](https://github.com/NoahTheDuke/vim-just) (Justfile syntax), [snacks.nvim](https://github.com/folke/snacks.nvim) (zen, scratch)       |
 
 ## Language Servers
 
 Managed via mason-lspconfig with automatic installation:
 
-| Server          | Language                                             |
-| --------------- | ---------------------------------------------------- |
-| `bashls`        | Bash / Shell                                         |
-| `gopls`         | Go                                                   |
-| `html`          | HTML                                                 |
-| `jsonls`        | JSON (with schema support)                           |
-| `lua_ls`        | Lua                                                  |
-| `marksman`      | Markdown                                             |
-| `rust_analyzer` | Rust (only enabled when a Rust toolchain is on PATH) |
-| `taplo`         | TOML                                                 |
-| `terraformls`   | Terraform                                            |
-| `ty`            | Python                                               |
-| `yamlls`        | YAML (with custom Databricks bundle schema)          |
+| Server          | Language                                                                                     |
+| --------------- | -------------------------------------------------------------------------------------------- |
+| `bashls`        | Bash / Shell                                                                                 |
+| `gopls`         | Go                                                                                           |
+| `harper_ls`     | Grammar in Markdown and git commit messages (spelling stays with vim spell)                  |
+| `html`          | HTML                                                                                         |
+| `jsonls`        | JSON (SchemaStore catalog: Claude/Codex plugin manifests, package.json, tsconfig, ...)       |
+| `lua_ls`        | Lua                                                                                          |
+| `marksman`      | Markdown                                                                                     |
+| `rust_analyzer` | Rust (only enabled when a Rust toolchain is on PATH)                                         |
+| `taplo`         | TOML                                                                                         |
+| `terraformls`   | Terraform                                                                                    |
+| `ty`            | Python                                                                                       |
+| `yamlls`        | YAML (SchemaStore, plus the Databricks bundle schema on `databricks.yml` and `resources/**`) |
 
 ## Formatters
 
@@ -66,6 +70,8 @@ Configured via conform.nvim — all run on save with LSP fallback:
 | `prettier`                              | JS, TS, JSX, TSX, JSON, YAML, HTML, CSS, Markdown |
 | `shfmt`                                 | Bash / Shell                                      |
 | `sqlfluff`                              | SQL (Databricks dialect)                          |
+
+This repo's own Lua is tab-indented, pinned by `.stylua.toml`.
 
 ## Key Mappings
 
@@ -86,31 +92,52 @@ Configured via conform.nvim — all run on save with LSP fallback:
 | `<Leader>e`         | Focus file tree                 |
 | `j` / `k`           | Wrap-aware up/down movement     |
 
+### Jump (flash)
+
+| Key             | Mode           | Action                                                                                   |
+| --------------- | -------------- | ---------------------------------------------------------------------------------------- |
+| `s`             | n, x, o        | Jump: type a few chars, then the label (`<CR>` takes the nearest match)                  |
+| `S`             | n, x, o        | Select a Treesitter node by label; `;` / `,` grow or shrink it                           |
+| `r`             | o              | Remote: `yr` + label + motion yanks there and returns                                    |
+| `R`             | x, o           | Treesitter search: `yR` + pattern + label acts on the node around a match                |
+| `<M-s>`         | `/` `?` prompt | Toggle flash labels in regular search                                                    |
+| `f` `F` `t` `T` | n, x, o        | Multi-line char motions; repeat with the same key or `;`, go back with the opposite case |
+
+`s` and `S` replace the built-ins; use `cl` and `cc`. `,` stays the leader key, so it isn't a flash repeat key.
+
 ### Search (fzf-lua)
 
-| Key         | Action              |
-| ----------- | ------------------- |
-| `<Leader>f` | Find files          |
-| `<Leader>g` | Live grep           |
-| `<Leader>G` | Grep current buffer |
-| `<Leader>b` | Buffers             |
-| `<Leader>h` | Help tags           |
-| `<Leader>v` | Browse nvim config  |
-| `<Leader>R` | Recent files        |
+| Key          | Action              |
+| ------------ | ------------------- |
+| `<Leader>f`  | Find files          |
+| `<Leader>g`  | Live grep           |
+| `<Leader>G`  | Grep current buffer |
+| `<Leader>b`  | Buffers             |
+| `<Leader>h`  | Help tags           |
+| `<Leader>H`  | Search keymaps      |
+| `<Leader>v`  | Browse nvim config  |
+| `<Leader>R`  | Recent files        |
+| `<Leader>cd` | `cd` via zoxide     |
+
+### Search & Replace (grug-far)
+
+| Key          | Action                                                                                                                |
+| ------------ | --------------------------------------------------------------------------------------------------------------------- |
+| `<Leader>sr` | Search & replace across the project; files filter starts as `*.<this file's ext>`, visual mode prefills the selection |
 
 ### LSP
 
-| Key                | Action                                        |
-| ------------------ | --------------------------------------------- |
-| `gd` / `gD`        | Go to definition / declaration                |
-| `gi` / `gr` / `gt` | Implementation / references / type definition |
-| `K`                | Hover docs                                    |
-| `<C-k>`            | Signature help                                |
-| `<Leader>rn`       | Rename symbol                                 |
-| `<Leader>ca`       | Code action                                   |
-| `[d` / `]d`        | Previous / next diagnostic                    |
-| `<Leader>d`        | Show diagnostic float                         |
-| `<Leader>cf`       | Format buffer                                 |
+| Key                   | Action                                                           |
+| --------------------- | ---------------------------------------------------------------- |
+| `gd` / `gD`           | Go to definition / declaration                                   |
+| `gri` / `grr` / `grt` | Implementation / references / type definition (Neovim built-ins) |
+| `K`                   | Hover docs                                                       |
+| `<C-k>`               | Signature help                                                   |
+| `<Leader>rn`          | Rename symbol                                                    |
+| `<Leader>ca`          | Code action                                                      |
+| `[d` / `]d`           | Previous / next diagnostic                                       |
+| `<Leader>d`           | Show diagnostic float                                            |
+| `<Leader>cf`          | Format buffer                                                    |
 
 ### Git
 
@@ -122,6 +149,16 @@ Configured via conform.nvim — all run on save with LSP fallback:
 | `<Leader>dc` | Diffview: close                |
 | `<Leader>dh` | Diffview: repo file history    |
 | `<Leader>df` | Diffview: current file history |
+
+### GitHub & Lazygit (snacks)
+
+| Key                         | Action                                            |
+| --------------------------- | ------------------------------------------------- |
+| `<Leader>op` / `<Leader>oP` | GitHub PRs (open / all), via `gh`                 |
+| `<Leader>oi` / `<Leader>oI` | GitHub issues (open / all)                        |
+| `<Leader>ob`                | Open file or selection on GitHub                  |
+| `<Leader>ol`                | Copy a GitHub permalink for the line or selection |
+| `<Leader>og`                | Lazygit                                           |
 
 ### AI (Claude Code)
 
@@ -143,12 +180,47 @@ Configured via conform.nvim — all run on save with LSP fallback:
 | Key          | Action                                        |
 | ------------ | --------------------------------------------- |
 | `<Leader>mr` | Toggle in-buffer rendering (render-markdown)  |
-| `<Leader>mv` | Toggle in-buffer preview (Markview)           |
 | `<Leader>mp` | Toggle browser preview (markdown-preview)     |
 | `<Leader>ml` | Start live browser preview (md/html/adoc/svg) |
 | `<Leader>mL` | Stop live preview server                      |
 | `<Leader>mt` | Document symbols / TOC                        |
 | `<Leader>mc` | Insert markdown callout                       |
+
+### Lists (autolist)
+
+Buffer-local in markdown, text, and git commit buffers; everywhere else these keys are stock.
+
+| Key                 | Action                                                                               |
+| ------------------- | ------------------------------------------------------------------------------------ |
+| `<CR>`              | New line that continues the list; on an empty item, ends the list (insert)           |
+| `<C-CR>`            | New line without a bullet (insert)                                                   |
+| `o` / `O`           | Open a line below / above that continues the list                                    |
+| `<Tab>` / `<S-Tab>` | On a list item, indent / dedent it, then renumber; elsewhere a normal Tab (insert)   |
+| `<C-t>` / `<C-d>`   | Same, on any line (insert). zellij takes `<C-t>` unless it's locked (`Ctrl-Shift-g`) |
+| `>>` / `<<`         | Indent / dedent the item, then renumber                                              |
+| `>` / `<`           | Indent / dedent the selected items, then renumber (visual)                           |
+| `dd` / `d`          | Delete the line / selection, then renumber                                           |
+| `gN`                | Renumber the list under the cursor (normal or visual)                                |
+| `<Leader>X`         | Toggle checkbox                                                                      |
+
+### Writing (snacks)
+
+| Key         | Action                |
+| ----------- | --------------------- |
+| `<Leader>z` | Zen mode              |
+| `<Leader>.` | Toggle scratch buffer |
+| `<Leader>S` | Select scratch buffer |
+
+### Secrets (camouflage)
+
+Secrets are masked automatically: every value in `.env*` and `~/.databrickscfg`, and elsewhere only secret-looking keys (`*token`, `secret`, `password`, `api_key`, ...) and known token prefixes (`dapi`, `sk-`, `ghp_`, ...). Buffers with masked values have completion turned off.
+
+| Key          | Action                                            |
+| ------------ | ------------------------------------------------- |
+| `<Leader>kt` | Toggle masking                                    |
+| `<Leader>kr` | Reveal the current line                           |
+| `<Leader>kp` | Demo mode on: mask every value and refuse reveals |
+| `<Leader>kP` | Demo mode off                                     |
 
 ### File Path
 
@@ -182,7 +254,8 @@ Configured via conform.nvim — all run on save with LSP fallback:
 ## Editor Defaults
 
 - 2-space tabs, relative line numbers, smart case search
-- No swap files, splits open right/below
+- No swap files, persistent undo, splits open right/below
+- Sign column always shown (no text shift when git/diagnostic signs appear)
 - Spell check enabled for markdown
 - Search highlighting only active while searching
 - Yank highlighting (200ms flash)
@@ -197,12 +270,13 @@ Terminal config — [`ghostty/config`](ghostty/config) (symlink into `~/.config/
 - **Theme:** `kanagawabones` — pairs with the kanagawa Neovim colorscheme
 - **Background:** Databricks logo (contain, 0.2 opacity) over a 0.7-opacity window
 - **macOS:** tabbed titlebar, hidden proxy icon, `option`→`alt`, maximized on launch
+- **Editing it in Neovim:** Ghostty.app's bundled runtime (kept on the rtp in `lua/config/lazy.lua`) gives the config `ft=ghostty`, syntax highlighting, and `:compiler ghostty` so `:make` runs `ghostty +validate-config`
 
-| Keybind | Action |
-| --- | --- |
-| Ctrl+backtick (global) | Toggle quick / dropdown terminal |
-| Shift+Enter | Send `ESC`+`CR` — distinct multiline key in TUIs (e.g. Claude Code) |
-| Ctrl+Shift+D | Send `ESC D` (Meta/Alt+D) |
+| Keybind                | Action                                                              |
+| ---------------------- | ------------------------------------------------------------------- |
+| Ctrl+backtick (global) | Toggle quick / dropdown terminal                                    |
+| Shift+Enter            | Send `ESC`+`CR` — distinct multiline key in TUIs (e.g. Claude Code) |
+| Ctrl+Shift+D           | Send `ESC D` (Meta/Alt+D)                                           |
 
 ## Install
 
@@ -216,7 +290,11 @@ Plugins install automatically on first launch via lazy.nvim. Mason will prompt t
 ## Requirements
 
 - Neovim >= 0.12 (nvim-treesitter `main` branch requires it)
+- [tree-sitter CLI](https://github.com/tree-sitter/tree-sitter) >= 0.26.1 via `brew install tree-sitter-cli` (nvim-treesitter `main` compiles parsers with it; npm's `tree-sitter-cli` is unsupported, and Homebrew's `tree-sitter` formula is only the library)
 - [fzf](https://github.com/junegunn/fzf)
+- [ripgrep](https://github.com/BurntSushi/ripgrep) (fzf-lua grep, grug-far)
+- [gh](https://cli.github.com/), authenticated (snacks GitHub PR/issue pickers)
+- [zoxide](https://github.com/ajeetdsouza/zoxide) and [lazygit](https://github.com/jesseduffield/lazygit) (optional: `<Leader>cd`, `<Leader>og`)
 - A [Nerd Font](https://www.nerdfonts.com/) for icons
 - Node.js (for prettier, html/json LSP)
 - Go (for gopls, goimports)

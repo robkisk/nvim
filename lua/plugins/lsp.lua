@@ -26,6 +26,7 @@ return {
       ensure_installed = {
         "bashls",
         "gopls",
+        "harper_ls",
         "html",
         "jsonls",
         "lua_ls",
@@ -60,14 +61,19 @@ return {
         settings = {
           yaml = {
             validate = true,
+            -- SchemaStore covers GitHub workflows, compose, k8s, etc. The DAB schema
+            -- is scoped to bundle files; for includes elsewhere, pick it manually
+            -- with require("yaml-companion").open_ui_select().
             schemaStore = {
-              enable = false,
-              url = "",
+              enable = true,
+              url = "https://www.schemastore.org/api/json/catalog.json",
             },
             schemas = {
               ["file://" .. vim.fn.expand("~/.config/nvim/schemas/databricks_bundle.json")] = {
-                "*.yml",
-                "*.yaml",
+                "databricks.yml",
+                "databricks.yaml",
+                "**/resources/**/*.yml",
+                "**/resources/**/*.yaml",
               },
             },
           },
@@ -80,6 +86,10 @@ return {
       vim.lsp.enable("yamlls")
     end,
   },
+
+  -- SchemaStore: JSON schema catalog for jsonls, loaded on first require (yamlls
+  -- fetches the same catalog itself via schemaStore.url above)
+  { "b0o/SchemaStore.nvim", lazy = true, version = false },
 
   -- LSPConfig: LSP server configurations
   {
@@ -105,6 +115,41 @@ return {
         },
       })
 
+      -- jsonls: attach the SchemaStore catalog (Claude/Codex plugin manifests,
+      -- package.json, tsconfig, ...). Without it jsonls only validates files that
+      -- declare their own $schema. before_init defers loading the catalog until a
+      -- JSON buffer actually starts the server.
+      vim.lsp.config("jsonls", {
+        before_init = function(_, config)
+          config.settings.json.schemas = require("schemastore").json.schemas()
+        end,
+        settings = {
+          json = { validate = { enable = true } },
+        },
+      })
+
+      -- html: the server requests the `css` settings section and Neovim answers
+      -- null for sections that aren't set, so CSS validation in <style> blocks
+      -- throws ("reading 'validProperties'") on every pass and reports nothing.
+      vim.lsp.config("html", {
+        settings = {
+          css = { validate = true },
+        },
+      })
+
+      -- harper_ls: grammar checking for prose. Its lspconfig default covers 28
+      -- filetypes, mostly code comments; keep it to docs and commit messages.
+      -- SpellCheck is off because the markdown FileType autocmd enables vim spell,
+      -- and two spellcheckers would double-flag every product name.
+      vim.lsp.config("harper_ls", {
+        filetypes = { "markdown", "gitcommit" },
+        settings = {
+          ["harper-ls"] = {
+            linters = { SpellCheck = false },
+          },
+        },
+      })
+
       -- rust_analyzer's root_dir shells out to `rustc` to locate the sysroot and
       -- throws if no Rust toolchain is on PATH, forcing a "Press ENTER" error
       -- prompt on every .rs buffer. It's excluded from mason-lspconfig's
@@ -120,12 +165,10 @@ return {
         callback = function(ev)
           local opts = { buffer = ev.buf }
 
-          -- Navigation
+          -- Navigation. References / implementation / type definition use Neovim's
+          -- built-in grr / gri / grt, so builtin gi (last insert) and gt (next tab) survive.
           vim.keymap.set("n", "gd", vim.lsp.buf.definition, vim.tbl_extend("force", opts, { desc = "Go to definition" }))
           vim.keymap.set("n", "gD", vim.lsp.buf.declaration, vim.tbl_extend("force", opts, { desc = "Go to declaration" }))
-          vim.keymap.set("n", "gi", vim.lsp.buf.implementation, vim.tbl_extend("force", opts, { desc = "Go to implementation" }))
-          vim.keymap.set("n", "gr", vim.lsp.buf.references, vim.tbl_extend("force", opts, { desc = "Find references" }))
-          vim.keymap.set("n", "gt", vim.lsp.buf.type_definition, vim.tbl_extend("force", opts, { desc = "Go to type definition" }))
 
           -- Documentation
           vim.keymap.set("n", "K", vim.lsp.buf.hover, vim.tbl_extend("force", opts, { desc = "Hover documentation" }))
