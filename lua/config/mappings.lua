@@ -118,6 +118,11 @@ map("n", "<Leader>md", function()
 	end
 	-- Float over the tab holding this pane, which may not be the session's active tab
 	rex({ "block", "inspect", "-s", session, block, "--json" }, function(out)
+		-- A new Rex block reads as 80x24 cells of 8x16 px until the app sizes it, and mdd up to 1.0.5
+		-- counts its font zoom from the first size it reads, so the page drew 2.5x too big. sh holds mdd
+		-- back until the size is real, or about 2 s pass. Upstream fix: qu8n/mddog e8d8f8fc (unreleased
+		-- as of 2026-11-17); drop the wait once a release has it
+		local wait = 'i=0; while [ "$(stty size)" = "24 80" ] && [ $i -lt 100 ]; do sleep 0.02; i=$((i + 1)); done'
 		local layer = {
 			window_id = vim.json.decode(out).block.window_id,
 			bounds = { 0.1, 0.1, 0.8, 0.8 },
@@ -126,7 +131,10 @@ map("n", "<Leader>md", function()
 				block = {
 					flavor = "com.superlogical.terminal.shell",
 					label = "mdd",
-					options = { command = { "mdd", file }, cwd = vim.fs.dirname(file) },
+					options = {
+						command = { "sh", "-c", wait .. '; exec mdd "$1"', "mdd", file },
+						cwd = vim.fs.dirname(file),
+					},
 				},
 			},
 		}
