@@ -89,6 +89,50 @@ map("n", "<Leader>ml", function()
 	vim.cmd("LivePreview start")
 end, { desc = "Live preview (browser, md/html/adoc/svg)" })
 map("n", "<Leader>mL", "<cmd>LivePreview close<cr>", { desc = "Live preview: stop server" })
+-- Read this file in mdd (mddog) in a floating Rex pane; q quits mdd and closes the pane.
+-- Rex's CLI only tiles, so this calls the session.new_layer API, with the bounds that
+-- ~/.config/rex/zellij.lua gives new floats. Saves first: mdd reads the file from disk
+map("n", "<Leader>md", function()
+	local file = vim.api.nvim_buf_get_name(0)
+	local session, block = vim.env.REX_SESSION, vim.env.REX_BLOCK
+	if vim.fn.filereadable(file) == 0 then
+		vim.notify("Buffer is not a file on disk", vim.log.levels.WARN)
+		return
+	elseif not (session and block and vim.fn.executable("rex") == 1) then
+		vim.notify("Not in a Rex pane, so there's nowhere to float mdd", vim.log.levels.WARN)
+		return
+	end
+	vim.cmd("silent update")
+	local function rex(args, on_ok)
+		vim.system(
+			vim.list_extend({ "rex" }, args),
+			{ text = true },
+			vim.schedule_wrap(function(res)
+				if res.code ~= 0 then
+					vim.notify("mdd float: " .. vim.trim(res.stderr or ""), vim.log.levels.ERROR)
+				elseif on_ok then
+					on_ok(res.stdout)
+				end
+			end)
+		)
+	end
+	-- Float over the tab holding this pane, which may not be the session's active tab
+	rex({ "block", "inspect", "-s", session, block, "--json" }, function(out)
+		local layer = {
+			window_id = vim.json.decode(out).block.window_id,
+			bounds = { 0.1, 0.1, 0.8, 0.8 },
+			focus = true,
+			layout = {
+				block = {
+					flavor = "com.superlogical.terminal.shell",
+					label = "mdd",
+					options = { command = { "mdd", file }, cwd = vim.fs.dirname(file) },
+				},
+			},
+		}
+		rex({ "api", "call", "-s", session, "session.new_layer", vim.json.encode(layer) })
+	end)
+end, { desc = "Read in mdd (floating Rex pane)" })
 map("n", "<Leader>mt", function()
 	require("fzf-lua").lsp_document_symbols()
 end, { desc = "Document symbols / TOC" })

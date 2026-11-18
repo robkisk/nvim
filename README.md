@@ -183,6 +183,7 @@ This repo's own Lua is tab-indented, pinned by `.stylua.toml`.
 | `<Leader>mp` | Toggle browser preview (markdown-preview)     |
 | `<Leader>ml` | Start live browser preview (md/html/adoc/svg) |
 | `<Leader>mL` | Stop live preview server                      |
+| `<Leader>md` | Read in mdd in a floating Rex pane (mddog)    |
 | `<Leader>mt` | Document symbols / TOC                        |
 | `<Leader>mc` | Insert markdown callout                       |
 
@@ -295,6 +296,7 @@ Plugins install automatically on first launch via lazy.nvim. Mason will prompt t
 - [ripgrep](https://github.com/BurntSushi/ripgrep) (fzf-lua grep, grug-far)
 - [gh](https://cli.github.com/), authenticated (snacks GitHub PR/issue pickers)
 - [zoxide](https://github.com/ajeetdsouza/zoxide) and [lazygit](https://github.com/jesseduffield/lazygit) (optional: `<Leader>cd`, `<Leader>og`)
+- [mddog](https://mddog.pages.dev)'s `mdd`, with Neovim running in a [Rex](https://www.superlogical.com/rex/docs) pane (optional: `<Leader>md`)
 - A [Nerd Font](https://www.nerdfonts.com/) for icons
 - Node.js (for prettier, html/json LSP)
 - Go (for gopls, goimports)
