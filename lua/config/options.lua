@@ -45,4 +45,3 @@ vim.filetype.add({
 		[".*%.gitconfig.*"] = "gitconfig",
 	},
 })
-

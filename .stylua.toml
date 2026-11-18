@@ -1,0 +1,2 @@
+# Pin stylua's default explicitly so format-on-save is a no-op on already-formatted files
+indent_type = "Tabs"

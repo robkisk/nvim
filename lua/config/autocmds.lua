@@ -1,22 +1,22 @@
 vim.filetype.add({
-  extension = {
-    tfstate = "json",
-  },
+	extension = {
+		tfstate = "json",
+	},
 })
 
 local augroup = vim.api.nvim_create_augroup("UserConfig", { clear = true })
 
 -- Set border colors on colorscheme change
 local function set_border_highlights()
-  vim.api.nvim_set_hl(0, "FloatBorder", { fg = "#b4befe" })
-  vim.api.nvim_set_hl(0, "TelescopeBorder", { fg = "#b4befe" })
-  vim.api.nvim_set_hl(0, "IblScope", { fg = "#b4befe" })
+	vim.api.nvim_set_hl(0, "FloatBorder", { fg = "#b4befe" })
+	vim.api.nvim_set_hl(0, "TelescopeBorder", { fg = "#b4befe" })
+	vim.api.nvim_set_hl(0, "IblScope", { fg = "#b4befe" })
 end
 
 vim.api.nvim_create_autocmd("ColorScheme", {
-  group = augroup,
-  pattern = "*",
-  callback = set_border_highlights,
+	group = augroup,
+	pattern = "*",
+	callback = set_border_highlights,
 })
 
 -- Apply once on load: lazy.nvim runs `:colorscheme` from within
@@ -26,63 +26,68 @@ set_border_highlights()
 
 -- Only highlight when actively searching
 vim.api.nvim_create_autocmd("CmdlineEnter", {
-  group = augroup,
-  callback = function()
-    local cmd = vim.v.event.cmdtype
-    if cmd == "/" or cmd == "?" then
-      vim.opt.hlsearch = true
-    end
-  end,
+	group = augroup,
+	callback = function()
+		local cmd = vim.v.event.cmdtype
+		if cmd == "/" or cmd == "?" then
+			vim.opt.hlsearch = true
+		end
+	end,
 })
 
 vim.api.nvim_create_autocmd("CmdlineLeave", {
-  group = augroup,
-  callback = function()
-    local cmd = vim.v.event.cmdtype
-    if cmd == "/" or cmd == "?" then
-      vim.opt.hlsearch = false
-    end
-  end,
+	group = augroup,
+	callback = function()
+		local cmd = vim.v.event.cmdtype
+		if cmd == "/" or cmd == "?" then
+			vim.opt.hlsearch = false
+		end
+	end,
 })
 
 -- Highlight when yanking
 vim.api.nvim_set_hl(0, "YankHighlight", { bg = "#f9e2af", fg = "#000000" })
 vim.api.nvim_create_autocmd("TextYankPost", {
-  group = augroup,
-  callback = function()
-    vim.highlight.on_yank({
-      higroup = "YankHighlight",
-      timeout = 200,
-    })
-  end,
+	group = augroup,
+	callback = function()
+		vim.highlight.on_yank({
+			higroup = "YankHighlight",
+			timeout = 200,
+		})
+	end,
 })
 
 -- Disable auto comment on new lines
 vim.api.nvim_create_autocmd("FileType", {
-  group = augroup,
-  pattern = "*",
-  callback = function()
-    vim.opt_local.formatoptions:remove({ "c", "r", "o" })
-  end,
+	group = augroup,
+	pattern = "*",
+	callback = function()
+		vim.opt_local.formatoptions:remove({ "c", "r", "o" })
+	end,
 })
 
 -- Claude Code: add file from tree explorers
 vim.api.nvim_create_autocmd("FileType", {
-  group = augroup,
-  pattern = { "NvimTree", "neo-tree", "oil", "minifiles", "netrw" },
-  callback = function(ev)
-    vim.keymap.set("n", "<Leader>as", "<cmd>ClaudeCodeTreeAdd<cr>", { buffer = ev.buf, desc = "Add file to Claude" })
-  end,
+	group = augroup,
+	pattern = { "NvimTree", "neo-tree", "oil", "minifiles", "netrw" },
+	callback = function(ev)
+		vim.keymap.set(
+			"n",
+			"<Leader>as",
+			"<cmd>ClaudeCodeTreeAdd<cr>",
+			{ buffer = ev.buf, desc = "Add file to Claude" }
+		)
+	end,
 })
 
 -- Markdown buffers: spell check + Treesitter section folding (open unfolded)
 vim.api.nvim_create_autocmd("FileType", {
-  group = augroup,
-  pattern = "markdown",
-  callback = function()
-    vim.opt_local.spell = true
-    vim.opt_local.foldmethod = "expr"
-    vim.opt_local.foldexpr = "v:lua.vim.treesitter.foldexpr()"
-    vim.opt_local.foldlevel = 99
-  end,
+	group = augroup,
+	pattern = "markdown",
+	callback = function()
+		vim.opt_local.spell = true
+		vim.opt_local.foldmethod = "expr"
+		vim.opt_local.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+		vim.opt_local.foldlevel = 99
+	end,
 })
