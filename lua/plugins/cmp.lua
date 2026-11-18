@@ -3,6 +3,7 @@ return {
 	{
 		"L3MON4D3/LuaSnip",
 		version = "v2.*",
+		lazy = true, -- loaded by nvim-cmp on InsertEnter; was ~15ms of startup
 		build = "make install_jsregexp",
 		dependencies = { "rafamadriz/friendly-snippets" },
 		config = function()

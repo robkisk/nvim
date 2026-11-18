@@ -6,11 +6,12 @@ vim.filetype.add({
 
 local augroup = vim.api.nvim_create_augroup("UserConfig", { clear = true })
 
--- Set border colors on colorscheme change
+-- Re-apply custom highlights on colorscheme change (`:colorscheme` runs
+-- `:hi clear`, which wipes user-defined groups like YankHighlight)
 local function set_border_highlights()
 	vim.api.nvim_set_hl(0, "FloatBorder", { fg = "#b4befe" })
-	vim.api.nvim_set_hl(0, "TelescopeBorder", { fg = "#b4befe" })
 	vim.api.nvim_set_hl(0, "IblScope", { fg = "#b4befe" })
+	vim.api.nvim_set_hl(0, "YankHighlight", { bg = "#f9e2af", fg = "#000000" })
 end
 
 vim.api.nvim_create_autocmd("ColorScheme", {
@@ -46,11 +47,10 @@ vim.api.nvim_create_autocmd("CmdlineLeave", {
 })
 
 -- Highlight when yanking
-vim.api.nvim_set_hl(0, "YankHighlight", { bg = "#f9e2af", fg = "#000000" })
 vim.api.nvim_create_autocmd("TextYankPost", {
 	group = augroup,
 	callback = function()
-		vim.highlight.on_yank({
+		vim.hl.on_yank({
 			higroup = "YankHighlight",
 			timeout = 200,
 		})

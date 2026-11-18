@@ -21,6 +21,11 @@ vim.opt.rtp:prepend(lazypath)
 vim.g.mapleader = ","
 vim.g.maplocalleader = ","
 
+-- Ghostty.app ships Neovim runtime files for its config (filetype, syntax, and
+-- `:compiler ghostty` running +validate-config) and exposes them through
+-- $XDG_DATA_DIRS, which lazy's rtp reset drops. Keep that dir on the rtp explicitly.
+local ghostty_runtime = "/Applications/Ghostty.app/Contents/Resources/nvim/site"
+
 -- Setup lazy.nvim
 require("lazy").setup({
 	spec = {
@@ -32,6 +37,11 @@ require("lazy").setup({
 	install = { colorscheme = { "habamax" } },
 	-- automatically check for plugin updates
 	checker = { enabled = true },
+	-- No plugin here needs luarocks; skip hererocks setup and its checkhealth warnings
+	rocks = { enabled = false },
+	performance = {
+		rtp = { paths = vim.fn.isdirectory(ghostty_runtime) == 1 and { ghostty_runtime } or {} },
+	},
 })
 
 -- Set the autoread option to allow Neovim to notice when a file has changed on disk
@@ -41,8 +51,9 @@ vim.opt.autoread = true
 vim.api.nvim_create_autocmd({ "FocusGained", "TermLeave", "BufEnter", "WinEnter", "CursorHold", "CursorHoldI" }, {
 	group = vim.api.nvim_create_augroup("CheckFileChanges", { clear = true }),
 	callback = function()
-		-- Check if the current buffer is unmodified within Neovim before reloading
-		if vim.bo.modified == false and vim.opt.modifiable:get() == true then
+		-- Check if the current buffer is unmodified within Neovim before reloading.
+		-- Skip the cmdline window (`q:`): checktime there raises E11 on BufEnter.
+		if vim.fn.getcmdwintype() == "" and not vim.bo.modified and vim.bo.modifiable then
 			vim.cmd("checktime")
 		end
 	end,
