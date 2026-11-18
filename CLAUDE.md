@@ -18,7 +18,7 @@ Bootstrap sequence in `init.lua` loads five modules in order:
 
 File-reload autocmds (`checktime` on FocusGained etc.) live in `config/lazy`, not `autocmds.lua`. `config/lazy` also keeps Ghostty.app's bundled runtime dir on the rtp via `performance.rtp.paths`: Ghostty exposes it through `$XDG_DATA_DIRS`, which lazy's rtp reset drops, and it's what gives the Ghostty config its filetype, syntax, and `:compiler ghostty`.
 
-**Load-order gotcha:** `require("config.lazy")` is line 1, and `lazy.setup()` synchronously runs `:colorscheme` from `colorscheme.lua`. So by the time `autocmds.lua` (line 3) registers a `ColorScheme` autocmd, the event has **already fired**. Anything reacting to `ColorScheme` must also be applied directly at load — register the autocmd for later theme switches *and* call it once. Same trap applies to any startup-time event lazy triggers during setup.
+**Load-order gotcha:** `require("config.lazy")` is line 1, and `lazy.setup()` synchronously runs `:colorscheme` from `colorscheme.lua`. So by the time `autocmds.lua` (line 3) registers a `ColorScheme` autocmd, the event has **already fired**. Anything reacting to `ColorScheme` must also be applied directly at load — register the autocmd for later theme switches _and_ call it once. Same trap applies to any startup-time event lazy triggers during setup.
 
 ## Plugin Conventions
 
@@ -30,6 +30,7 @@ File-reload autocmds (`checktime` on FocusGained etc.) live in `config/lazy`, no
 ### Treesitter (Neovim 0.12+)
 
 `lua/plugins/treesitter.lua` uses the `main` branch (not `master`). The `master` branch is archived and incompatible with Neovim 0.12. Key differences:
+
 - Highlighting via `vim.treesitter.start()` in a `FileType` autocmd, NOT `highlight = { enable = true }`. The autocmd starts it only when the language has a `highlights` query: `start()` turns regex syntax off, so starting on a parser with no queries leaves the buffer with no highlighting at all (this blanked terraform, gitcommit, make, and a dozen other filetypes while `master`-era parsers sat on the rtp)
 - Indent via `vim.bo.indentexpr`, NOT `indent = { enable = true }`
 - Parser install via `require("nvim-treesitter").install()`, NOT `ensure_installed` in opts
@@ -41,7 +42,7 @@ File-reload autocmds (`checktime` on FocusGained etc.) live in `config/lazy`, no
 
 ### snacks.nvim
 
-`lua/plugins/snacks.lua` loads eagerly (`lazy = false`, priority 1000); its health check warns otherwise. Only `gh`, `gitbrowse`, `lazygit`, `scratch`, `zen`, and `picker` (which `gh` needs) are enabled, with `picker.ui_select = false` so fzf-lua keeps `vim.ui.select`. Snacks *replaces* list options instead of merging them, so `gitbrowse.remote_patterns` is snacks' full default list with a `github.com-emu` → `github.com` rewrite prepended for EMU remotes. Re-sync it if snacks changes its defaults.
+`lua/plugins/snacks.lua` loads eagerly (`lazy = false`, priority 1000); its health check warns otherwise. Only `gh`, `gitbrowse`, `lazygit`, `scratch`, `zen`, and `picker` (which `gh` needs) are enabled, with `picker.ui_select = false` so fzf-lua keeps `vim.ui.select`. Snacks _replaces_ list options instead of merging them, so `gitbrowse.remote_patterns` is snacks' full default list with a `github.com-emu` → `github.com` rewrite prepended for EMU remotes. Re-sync it if snacks changes its defaults.
 
 ### camouflage.nvim
 
@@ -52,9 +53,8 @@ File-reload autocmds (`checktime` on FocusGained etc.) live in `config/lazy`, no
 
 ### flash.nvim
 
-- Loads on `VeryLazy`, not lazy `keys`: its char mode maps `f`/`F`/`t`/`T`/`;` during setup, so a keys-only trigger would leave those stock until the first `s`. The jump keymaps (`s`, `S`, `r`, `R`, cmdline `<M-s>`) live in `mappings.lua`.
+- Loads on `VeryLazy`, not lazy `keys`: its char mode maps `f`/`F`/`t`/`T`/`;` during setup, so a keys-only trigger would leave those stock until the first `s`. The jump keymaps (`s`, `S`, `r`, `R`, cmdline `<C-s>`) live in `mappings.lua`.
 - Char mode skips any key equal to `mapleader`, so `,` stays the leader. Don't add `,` to `modes.char.keys`.
-- The search toggle is `<M-s>`, not the README's `<C-s>`: zellij takes Ctrl-s.
 - Headless runs never fire `VeryLazy` (no UI). Run `nvim_exec_autocmds("User", { pattern = "VeryLazy" })` before you check char-mode maps.
 
 ### Adding a New Plugin
@@ -93,7 +93,7 @@ conform.nvim (`lua/plugins/conform.lua`) runs format-on-save with 500ms timeout 
 
 **No zsh formatter (deliberate):** zsh is intentionally absent from `formatters_by_ft`. Neither shfmt (no zsh grammar — chokes on `${${@[(r)...]}}`) nor beautysh (naive brace counter — desyncs on `awk '{...}'` in fzf `--preview` blocks) can format real zsh. Use Treesitter `=` (`gg=G` or visual `=`) to reindent zsh instead.
 
-**goimports is configured but not installed** — `conform` reports `available=false`, so Go files silently fall back to LSP formatting. It's also the only formatter in this list absent from mason's `ensure_installed`. Either `go install golang.org/x/tools/cmd/goimports@latest` or drop the `go` entry; don't assume Go files are being formatted.
+**goimports is configured but not installed** — `conform` reports `available=false`, so Go files silently fall back to LSP formatting. Mason installs none of the formatters: stylua, prettier, and shfmt come from Homebrew, and ruff and sqlfluff from `uv tool`, so any one missing from PATH fails the same quiet way. Either `go install golang.org/x/tools/cmd/goimports@latest` or drop the `go` entry; don't assume Go files are being formatted.
 
 **Lua is tab-indented everywhere**, pinned by `.stylua.toml` (`indent_type = "Tabs"`, 120-col default). Edit with tabs so format-on-save is a no-op; `stylua --check init.lua lua` should exit 0 before committing.
 
@@ -111,17 +111,21 @@ conform.nvim (`lua/plugins/conform.lua`) runs format-on-save with 500ms timeout 
 2. `LspAttach` in `lua/plugins/lsp.lua` — buffer-local, only on attached buffers
 3. lazy `keys =` specs — `conform.lua` (`<Leader>cf`), `emoji.lua` (`<Leader>se`, `<Leader>sk`), `which-key.lua` (`<Leader>?`). These must stay in the spec, since lazy uses them as load triggers.
 4. `FileType` autocmd in `lua/config/autocmds.lua` — buffer-local `<Leader>as` (`ClaudeCodeTreeAdd`), tree-explorer buffers only
-5. `FileType` autocmd in `lua/plugins/autolist.lua` — buffer-local list editing (`<CR>`, `o`, `O`, `>>`, `<<`, `dd`, `gN`, `<Leader>X`, insert `<Tab>`/`<S-Tab>`/`<C-t>`/`<C-d>`, visual `>`/`<`/`d`). zellij grabs `<C-t>`, so `<Tab>`/`<S-Tab>` are the insert-mode indent keys that reach nvim, markdown/text/gitcommit buffers only. They live in the spec, not `mappings.lua`, because they call autolist's commands and must exist only once it has loaded.
+5. `FileType` autocmd in `lua/plugins/autolist.lua` — buffer-local list editing (`<CR>`, `o`, `O`, `>>`, `<<`, `dd`, `gN`, `<Leader>X`, insert `<Tab>`/`<S-Tab>`/`<C-t>`/`<C-d>`, visual `>`/`<`/`d`), markdown/text/gitcommit buffers only. Insert `<Tab>`/`<S-Tab>` (the keys autolist's README maps) indent only on a list item and stay stock elsewhere. They live in the spec, not `mappings.lua`, because they call autolist's commands and must exist only once it has loaded.
 
 **Prefix collisions cost latency, not correctness.** A standalone mapping that is also the prefix of a longer one waits out `timeoutlen` (300ms here) before firing; the longer mapping still works. Measured: a non-shadowed key like `<Leader>w` fires in ~0ms, a prefix-shadowed key takes ~400ms. Current shadowed keys: `<Leader>s` (always, by `,se`/`,sk`/`,sr`) and `<Leader>d` (only on LSP-attached buffers — bare `<Leader>d` is the `LspAttach` "show diagnostic" map, shadowed by the global `,dv`/`,dc`/`,dh`/`,df` Diffview maps).
 
 ## Filetype Associations
 
 Defined in `lua/config/options.lua`:
+
 - `.databrickscfg` → shell
 - `.env` / `.env.*` → shell
+- `.gitmessage` → gitcommit
+- `*.gitconfig*` (the includes `.gitconfig` pulls in, like `themes.gitconfig`) → gitconfig; Neovim only detects the exact name `.gitconfig`
 
 Also registered via `vim.filetype.add` in `lua/config/autocmds.lua`:
+
 - `.tfstate` → json
 
 ## MCP Servers
@@ -134,6 +138,7 @@ For Neovim/Lua-specific lookups (lsp config, mason, plugin source), the `serena`
 
 - `schemas/databricks_bundle.json` — JSON schema consumed by yaml-companion.nvim to validate Declarative Automation Bundle YAML (wired in `lua/plugins/lsp.lua`). Regenerate with `databricks bundle schema > schemas/databricks_bundle.json` after CLI upgrades
 - `styles/databricks-markdown.css` — stylesheet for markdown-preview.nvim
+- `snippets/` — custom LuaSnip snippets in VS Code format (`package.json` + `markdown.json`), loaded after friendly-snippets in `lua/plugins/cmp.lua`
 
 See `README.md` for the exhaustive plugin inventory and keymap tables — do not duplicate those here.
 
