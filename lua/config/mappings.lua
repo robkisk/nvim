@@ -64,6 +64,10 @@ map("n", "<Leader>h", function()
 	require("fzf-lua").help_tags()
 end, { desc = "Search help tags" })
 
+map("n", "<Leader>H", function()
+	require("fzf-lua").keymaps()
+end, { desc = "Search keymaps" })
+
 map("n", "<Leader>v", function()
 	require("fzf-lua").files({ cwd = "~/.config/nvim" })
 end, { desc = "Find nvim config files" })
@@ -75,6 +79,34 @@ end, { desc = "Find buffers" })
 map("n", "<Leader>R", function()
 	require("fzf-lua").oldfiles()
 end, { desc = "Recent files" })
+
+map("n", "<Leader>cd", function()
+	require("fzf-lua").zoxide()
+end, { desc = "Change directory (zoxide)" })
+
+-- Search and replace (grug-far). From visual mode grug-far prefills the search with the
+-- selection; the files filter starts as this file's extension (e.g. *.md for doc sweeps)
+map({ "n", "x" }, "<Leader>sr", function()
+	local ext = vim.bo.buftype == "" and vim.fn.expand("%:e") or ""
+	require("grug-far").open({ transient = true, prefills = { filesFilter = ext ~= "" and "*." .. ext or nil } })
+end, { desc = "Search and replace (project)" })
+
+-- Jump (flash.nvim). Overrides built-in s/S (use cl/cc instead)
+map({ "n", "x", "o" }, "s", function()
+	require("flash").jump()
+end, { desc = "Flash jump" })
+map({ "n", "x", "o" }, "S", function()
+	require("flash").treesitter()
+end, { desc = "Flash Treesitter select" })
+map("o", "r", function()
+	require("flash").remote()
+end, { desc = "Flash remote" })
+map({ "o", "x" }, "R", function()
+	require("flash").treesitter_search()
+end, { desc = "Flash Treesitter search" })
+map("c", "<C-s>", function()
+	require("flash").toggle()
+end, { desc = "Toggle Flash in / search" })
 
 -- Markdown
 map("n", "<Leader>mr", "<cmd>RenderMarkdown toggle<cr>", { desc = "Toggle markdown rendering" })
@@ -170,6 +202,30 @@ map("n", "<Leader>mc", function()
 	end)
 end, { desc = "Insert markdown callout" })
 
+-- Writing (snacks.nvim)
+map("n", "<Leader>z", function()
+	require("snacks").zen()
+end, { desc = "Zen mode" })
+map("n", "<Leader>.", function()
+	require("snacks").scratch()
+end, { desc = "Toggle scratch buffer" })
+map("n", "<Leader>S", function()
+	require("snacks").scratch.select()
+end, { desc = "Select scratch buffer" })
+
+-- Secrets (camouflage.nvim). Everyday policy masks secrets only; demo mode masks every
+-- parsed value and locks reveals, since :CamouflagePresent alone keeps the policy
+map("n", "<Leader>kt", "<cmd>CamouflageToggle<cr>", { desc = "Toggle secret masking" })
+map("n", "<Leader>kr", "<cmd>CamouflageReveal<cr>", { desc = "Reveal secrets on this line" })
+map("n", "<Leader>kp", function()
+	require("camouflage.config").set("policy.default_action", "mask")
+	vim.cmd("CamouflagePresent")
+end, { desc = "Demo mode on (mask all values)" })
+map("n", "<Leader>kP", function()
+	require("camouflage.config").set("policy.default_action", "ignore")
+	vim.cmd("CamouflagePresent!")
+end, { desc = "Demo mode off" })
+
 -- Unified diff
 map("n", "<Leader>ud", "<cmd>Unified<cr>", { desc = "Diff against HEAD" })
 map("n", "<Leader>ur", "<cmd>Unified reset<cr>", { desc = "Close diff view" })
@@ -179,6 +235,38 @@ map("n", "<Leader>dv", "<cmd>DiffviewOpen<cr>", { desc = "Diffview: open" })
 map("n", "<Leader>dc", "<cmd>DiffviewClose<cr>", { desc = "Diffview: close" })
 map("n", "<Leader>dh", "<cmd>DiffviewFileHistory<cr>", { desc = "Diffview: repo file history" })
 map("n", "<Leader>df", "<cmd>DiffviewFileHistory %<cr>", { desc = "Diffview: current file history" })
+
+-- Git / GitHub (snacks.nvim)
+map("n", "<Leader>op", function()
+	require("snacks").picker.gh_pr()
+end, { desc = "GitHub PRs (open)" })
+map("n", "<Leader>oP", function()
+	require("snacks").picker.gh_pr({ state = "all" })
+end, { desc = "GitHub PRs (all)" })
+map("n", "<Leader>oi", function()
+	require("snacks").picker.gh_issue()
+end, { desc = "GitHub issues (open)" })
+map("n", "<Leader>oI", function()
+	require("snacks").picker.gh_issue({ state = "all" })
+end, { desc = "GitHub issues (all)" })
+map({ "n", "x" }, "<Leader>ob", function()
+	require("snacks").gitbrowse()
+end, { desc = "Open file/selection on GitHub" })
+map({ "n", "x" }, "<Leader>ol", function()
+	-- Permalink pins the URL to the last commit that touched this file: it resolves once
+	-- that commit is pushed, and line numbers follow the committed version of the file
+	require("snacks").gitbrowse({
+		what = "permalink",
+		notify = false,
+		open = function(url)
+			vim.fn.setreg("+", url)
+			vim.notify("Copied: " .. url)
+		end,
+	})
+end, { desc = "Copy GitHub permalink" })
+map("n", "<Leader>og", function()
+	require("snacks").lazygit()
+end, { desc = "Lazygit" })
 
 -- Buffer navigation
 map("n", "<Tab>", ":bnext<CR>", { desc = "Next buffer" })
