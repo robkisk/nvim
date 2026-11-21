@@ -141,10 +141,14 @@ return {
 			-- filetypes, mostly code comments; keep it to docs and commit messages.
 			-- SpellCheck is off because the markdown FileType autocmd enables vim spell,
 			-- and two spellcheckers would double-flag every product name.
+			-- userDictPath is a tracked word list, so SplitWords stops flagging names
+			-- like "databricks" (→ "data bricks"); harper's "add to dictionary" code
+			-- action appends to the same file.
 			vim.lsp.config("harper_ls", {
 				filetypes = { "markdown", "gitcommit" },
 				settings = {
 					["harper-ls"] = {
+						userDictPath = vim.fn.stdpath("config") .. "/spell/harper-dict.txt",
 						linters = { SpellCheck = false },
 					},
 				},

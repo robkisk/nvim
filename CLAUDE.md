@@ -81,7 +81,7 @@ File-reload autocmds (`checktime` on FocusGained etc.) live in `config/lazy`, no
 
 **html css settings:** `nvim-lspconfig`'s `config` sets `settings.css` for html. html-lsp requests the `css` settings section, Neovim answers `null` for sections that aren't set, and CSS validation in `<style>` blocks then throws `Cannot read properties of null (reading 'validProperties')` on every pass and reports nothing.
 
-**harper_ls exception:** harper_ls is auto-enabled, but `vim.lsp.config("harper_ls", ...)` narrows `filetypes` to `markdown` and `gitcommit` (lspconfig's default list has 28, mostly to lint code comments). It also turns off harper's `SpellCheck` linter, because the markdown `FileType` autocmd already sets `spell` and two spellcheckers double-flag every product name. `vim.lsp.config` replaces lists rather than merging them, so `filetypes` there is the complete list.
+**harper_ls exception:** harper_ls is auto-enabled, but `vim.lsp.config("harper_ls", ...)` narrows `filetypes` to `markdown` and `gitcommit` (lspconfig's default list has 28, mostly to lint code comments). It also turns off harper's `SpellCheck` linter, because the markdown `FileType` autocmd already sets `spell` and two spellcheckers double-flag every product name. `vim.lsp.config` replaces lists rather than merging them, so `filetypes` there is the complete list. Its `userDictPath` points at `spell/harper-dict.txt`, which stops `SplitWords` from flagging names like `databricks` ("data bricks"). Harper's add-to-dictionary code action appends to that file. The dictionary doesn't silence `OrthographicConsistency` (`DABs` → `dabs`, `rex` → `Rex`).
 
 **marksman diagnostic filter:** `nvim-lspconfig`'s `config` wraps the `textDocument/publishDiagnostics` handler to drop marksman's "Ambiguous link to document" warnings — marksman matches one on-disk file via path + basename + frontmatter title and reports ambiguity even when only one file exists. Preserve this filter if you refactor the diagnostics handler.
 
@@ -137,6 +137,7 @@ For Neovim/Lua-specific lookups (lsp config, mason, plugin source), the `serena`
 ## Supporting Directories
 
 - `schemas/databricks_bundle.json` — JSON schema consumed by yaml-companion.nvim to validate Declarative Automation Bundle YAML (wired in `lua/plugins/lsp.lua`). Regenerate with `databricks bundle schema > schemas/databricks_bundle.json` after CLI upgrades
+- `spell/harper-dict.txt` — harper_ls user dictionary, one word per line (wired in `lua/plugins/lsp.lua`)
 - `styles/databricks-markdown.css` — stylesheet for markdown-preview.nvim
 - `snippets/` — custom LuaSnip snippets in VS Code format (`package.json` + `markdown.json`), loaded after friendly-snippets in `lua/plugins/cmp.lua`
 
