@@ -1,4 +1,3 @@
-vim.opt.mousemoveevent = true
 vim.opt.number = true
 vim.opt.relativenumber = true
 vim.opt.scrolloff = 0
@@ -30,15 +29,15 @@ vim.g.loaded_node_provider = 0
 vim.g.loaded_ruby_provider = 0
 vim.g.loaded_perl_provider = 0
 
--- Filetype associations
+-- Filetype associations. Nvim 0.12 detects .env, .env.* and *.env as `env` on its own.
 vim.filetype.add({
 	filename = {
-		[".databrickscfg"] = "sh",
+		-- INI, not shell: as `sh` it drew bashls diagnostics, and shfmt rejected the `;`
+		-- comment the Databricks CLI writes at the top, so every save failed
+		[".databrickscfg"] = "dosini",
 		[".gitmessage"] = "gitcommit",
 	},
 	pattern = {
-		["%.env"] = "sh",
-		["%.env%..*"] = "sh",
 		-- Nvim only auto-detects the exact name `.gitconfig`. This catches the
 		-- includes it pulls in: themes.gitconfig, .gitconfig-databricks-field-eng, etc.
 		-- Pattern keys are anchored to the full path, so `.gitconfig` needs `.*` on both sides.

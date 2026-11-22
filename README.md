@@ -47,7 +47,7 @@ lazy-lock.json          # Pinned plugin versions
 
 ## Language Servers
 
-Managed via mason-lspconfig with automatic installation:
+mason-lspconfig installs these, and `lua/plugins/lsp.lua` enables them by name:
 
 | Server          | Language                                                                                     |
 | --------------- | -------------------------------------------------------------------------------------------- |
@@ -92,13 +92,13 @@ This repo's own Lua is tab-indented, pinned by `.stylua.toml`.
 
 ### Navigation & Buffers
 
-| Key                 | Action                          |
-| ------------------- | ------------------------------- |
-| `<Tab>` / `<S-Tab>` | Next / previous buffer          |
-| `<Leader>x`         | Close buffer (warns if unsaved) |
-| `<Leader>t`         | Toggle file tree                |
-| `<Leader>e`         | Focus file tree                 |
-| `j` / `k`           | Wrap-aware up/down movement     |
+| Key                 | Action                                              |
+| ------------------- | --------------------------------------------------- |
+| `<Tab>` / `<S-Tab>` | Next / previous buffer                              |
+| `<Leader>x`         | Close buffer, keeping its window (warns if unsaved) |
+| `<Leader>t`         | Toggle file tree                                    |
+| `<Leader>e`         | Focus file tree                                     |
+| `j` / `k`           | Wrap-aware up/down movement                         |
 
 ### Jump (flash)
 
@@ -135,17 +135,17 @@ This repo's own Lua is tab-indented, pinned by `.stylua.toml`.
 
 ### LSP
 
-| Key                   | Action                                                           |
-| --------------------- | ---------------------------------------------------------------- |
-| `gd` / `gD`           | Go to definition / declaration                                   |
-| `gri` / `grr` / `grt` | Implementation / references / type definition (Neovim built-ins) |
-| `K`                   | Hover docs                                                       |
-| `<C-k>`               | Signature help                                                   |
-| `<Leader>rn`          | Rename symbol                                                    |
-| `<Leader>ca`          | Code action                                                      |
-| `[d` / `]d`           | Previous / next diagnostic                                       |
-| `<Leader>d`           | Show diagnostic float                                            |
-| `<Leader>cf`          | Format buffer                                                    |
+| Key                   | Action                                                                 |
+| --------------------- | ---------------------------------------------------------------------- |
+| `gd` / `gD`           | Go to definition / declaration                                         |
+| `gri` / `grr` / `grt` | Implementation / references / type definition (Neovim built-ins)       |
+| `K`                   | Hover docs                                                             |
+| `<C-k>`               | Signature help                                                         |
+| `<Leader>rn`          | Rename symbol                                                          |
+| `<Leader>ca`          | Code action                                                            |
+| `[d` / `]d`           | Previous / next diagnostic, shown in a float (built-ins; take a count) |
+| `<Leader>d`           | Show diagnostic float                                                  |
+| `<Leader>cf`          | Format buffer                                                          |
 
 ### Completion & Snippets (nvim-cmp, LuaSnip)
 
@@ -290,7 +290,7 @@ Plain `y` and `p` already use the system clipboard (`clipboard=unnamedplus`); th
 - Files changed on disk reload on their own (checked on focus, buffer switches, and idle), unless the buffer has unsaved changes
 - Markdown: spell check, and Treesitter folding by section (opens unfolded)
 - Custom float border color (`#b4befe`)
-- Filetypes: `.env`, `.env.*`, and `.databrickscfg` as shell; `.gitmessage` as a git commit; any `*.gitconfig*` file as gitconfig; `*.tfstate` as JSON
+- Filetypes: `.databrickscfg` as INI; `.gitmessage` as a git commit; any `*.gitconfig*` file as gitconfig; `*.tfstate` as JSON. `.env` files use Neovim's built-in `env` filetype
 
 ## Install
 
@@ -309,7 +309,7 @@ On first launch, lazy.nvim installs the plugins, mason-lspconfig installs the la
 - [fzf](https://github.com/junegunn/fzf)
 - [ripgrep](https://github.com/BurntSushi/ripgrep) (fzf-lua grep, grug-far)
 - [gh](https://cli.github.com/), authenticated (snacks GitHub PR/issue pickers)
-- Formatters on your PATH: `brew install stylua prettier shfmt`, then `uv tool install ruff` and `uv tool install sqlfluff`. Optional: `go install golang.org/x/tools/cmd/goimports@latest`
+- Formatters on your PATH: `brew install stylua prettier shfmt`, then `uv tool install ruff` and `uv tool install sqlfluff`. Optional: `go install golang.org/x/tools/cmd/goimports@latest` (on Go 1.25, use `@v0.49.0`; later versions need Go 1.26)
 - Node.js (Mason's html, json, yaml, and bash servers; prettier; markdown-preview's build)
 - Go (Mason builds gopls with it)
 - Python 3 (Mason installs ty into a virtualenv) and [uv](https://github.com/astral-sh/uv) (for ruff and sqlfluff)

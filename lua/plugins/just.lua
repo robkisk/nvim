@@ -1,9 +1,7 @@
 return {
-	-- Justfile syntax + ftdetect (github.com/NoahTheDuke/vim-just).
-	-- Loaded eagerly rather than `ft = "just"`: the plugin's own ftdetect
-	-- covers cases Neovim's built-in detection misses (`*.justfile`,
-	-- `#!/usr/bin/env just` shebang scripts). Lazy-loading on `ft` would never
-	-- fire for those — nothing would set the filetype to trigger the load.
-	-- Cost is negligible; it only registers syntax + ftdetect autocmds.
+	-- Justfile syntax, ftplugin, and indent (github.com/NoahTheDuke/vim-just), newer than the
+	-- copies Neovim 0.12 bundles. lazy sources an ft-loaded plugin's ftdetect at startup, so
+	-- its detection still covers what Neovim's own misses (`*.justfile`) before it loads.
 	"NoahTheDuke/vim-just",
+	ft = "just",
 }

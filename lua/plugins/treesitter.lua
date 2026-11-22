@@ -4,9 +4,6 @@ return {
 		branch = "main",
 		build = ":TSUpdate",
 		lazy = false,
-		dependencies = {
-			"windwp/nvim-ts-autotag",
-		},
 		init = function()
 			-- No zsh grammar exists in nvim-treesitter; map zsh buffers to the
 			-- bash parser so highlighting, folds, AND `=` indent queries resolve.
@@ -89,5 +86,18 @@ return {
 				require("nvim-treesitter").install(to_install)
 			end
 		end,
+	},
+
+	-- Its own spec, not a dependency of nvim-treesitter: on the main branch its plugin/ file
+	-- only hooks the removed module system, so autotag does nothing until setup() runs
+	-- (opts makes lazy call it). Loads before the first FileType, so that buffer gets it too.
+	{
+		"windwp/nvim-ts-autotag",
+		event = { "BufReadPre", "BufNewFile" },
+		opts = {
+			-- Off in markdown, which autotag treats as HTML: typing `<Leader>x` or `<CR>` in prose,
+			-- even inside a code span, got a closing `</Leader>` appended
+			per_filetype = { markdown = { enable_close = false, enable_rename = false } },
+		},
 	},
 }

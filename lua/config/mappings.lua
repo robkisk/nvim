@@ -18,11 +18,12 @@ end, { expr = true, desc = "Move up (wrap-aware)" })
 map("n", "<Leader>w", ":write<CR>", { desc = "Write buffer" })
 map("n", "<Leader>s", ":source %<CR>", { desc = "Source current file" })
 
--- System clipboard
-map({ "n", "v" }, "<Leader>y", '"+y', { desc = "Yank to clipboard" })
+-- System clipboard. "x", not "v": "v" also covers select mode, so typing ,p or ,y into a
+-- LuaSnip placeholder would paste or yank instead of inserting the text
+map({ "n", "x" }, "<Leader>y", '"+y', { desc = "Yank to clipboard" })
 map("n", "<Leader>Y", '"+y$', { desc = "Yank line to clipboard" })
-map({ "n", "v" }, "<Leader>p", '"+p', { desc = "Paste from clipboard" })
-map({ "n", "v" }, "<Leader>P", '"+P', { desc = "Paste before from clipboard" })
+map({ "n", "x" }, "<Leader>p", '"+p', { desc = "Paste from clipboard" })
+map({ "n", "x" }, "<Leader>P", '"+P', { desc = "Paste before from clipboard" })
 
 -- Copy current file path to clipboard
 map("n", "<Leader>cp", function()
@@ -271,11 +272,13 @@ end, { desc = "Lazygit" })
 -- Buffer navigation
 map("n", "<Tab>", ":bnext<CR>", { desc = "Next buffer" })
 map("n", "<S-Tab>", ":bprevious<CR>", { desc = "Previous buffer" })
+-- Snacks.bufdelete keeps the window and shows the previous buffer in it. :bdelete closes every
+-- window showing the buffer, so with nvim-tree open only the tree was left
 map("n", "<Leader>x", function()
 	if vim.bo.modified then
 		vim.notify("Buffer has unsaved changes. Save or use :bdelete!", vim.log.levels.WARN)
 	else
-		vim.cmd("bdelete")
+		require("snacks").bufdelete()
 	end
 end, { desc = "Close buffer" })
 
@@ -295,7 +298,7 @@ map("n", "<Leader>ab", function()
 	end
 	require("claudecode").send_at_mention(path, nil, nil, "ClaudeCodeAdd")
 end, { desc = "Add buffer to Claude" })
-map("v", "<Leader>as", "<cmd>ClaudeCodeSend<CR>", { desc = "Send selection to Claude" })
+map("x", "<Leader>as", "<cmd>ClaudeCodeSend<CR>", { desc = "Send selection to Claude" })
 map("n", "<Leader>aa", "<cmd>ClaudeCodeDiffAccept<CR>", { desc = "Accept Claude diff" })
 map("n", "<Leader>ad", "<cmd>ClaudeCodeDiffDeny<CR>", { desc = "Deny Claude diff" })
 

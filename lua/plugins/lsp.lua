@@ -15,14 +15,18 @@ return {
 		},
 	},
 
-	-- Mason-LSPConfig: Bridge between mason and lspconfig
+	-- Mason-LSPConfig: installs the servers below but doesn't enable them. automatic_enable
+	-- scans the whole mason registry, ~20ms on every launch, so nvim-lspconfig's config
+	-- enables them by name instead. VeryLazy: installs can wait until after the first paint.
 	{
 		"mason-org/mason-lspconfig.nvim",
+		event = "VeryLazy",
 		dependencies = {
 			"mason-org/mason.nvim",
 			"neovim/nvim-lspconfig",
 		},
 		opts = {
+			-- A new server goes here and in nvim-lspconfig's vim.lsp.enable list
 			ensure_installed = {
 				"bashls",
 				"gopls",
@@ -37,11 +41,7 @@ return {
 				"ty@0.0.32",
 				"yamlls",
 			},
-			automatic_enable = {
-				-- rust_analyzer is enabled conditionally in nvim-lspconfig's config
-				-- (only when a Rust toolchain is on PATH) to avoid a hard error.
-				exclude = { "yamlls", "rust_analyzer" },
-			},
+			automatic_enable = false,
 		},
 	},
 
@@ -95,6 +95,8 @@ return {
 	{
 		"neovim/nvim-lspconfig",
 		event = { "BufReadPre", "BufNewFile" },
+		-- mason's setup puts its bin dir on PATH, so it has to load before any server starts
+		dependencies = { "mason-org/mason.nvim" },
 		config = function()
 			-- lua_ls: teach it the Neovim runtime. Without this it flags `vim` as an
 			-- undefined global on every line of this config. Library is scoped to
@@ -154,11 +156,26 @@ return {
 				},
 			})
 
+			-- The servers mason-lspconfig installs (ensure_installed above), minus two:
+			-- yaml-companion enables yamlls with the bundle schema, and rust_analyzer needs
+			-- a toolchain (below)
+			vim.lsp.enable({
+				"bashls",
+				"gopls",
+				"harper_ls",
+				"html",
+				"jsonls",
+				"lua_ls",
+				"marksman",
+				"taplo",
+				"terraformls",
+				"ty",
+			})
+
 			-- rust_analyzer's root_dir shells out to `rustc` to locate the sysroot and
 			-- throws if no Rust toolchain is on PATH, forcing a "Press ENTER" error
-			-- prompt on every .rs buffer. It's excluded from mason-lspconfig's
-			-- automatic_enable above; enable it only when a toolchain is present, so it
-			-- auto-activates on the next launch once rustc is installed.
+			-- prompt on every .rs buffer. Enable it only when a toolchain is present, so
+			-- it auto-activates on the next launch once rustc is installed.
 			if vim.fn.executable("rustc") == 1 then
 				vim.lsp.enable("rust_analyzer")
 			end
@@ -206,19 +223,13 @@ return {
 						vim.tbl_extend("force", opts, { desc = "Rename symbol" })
 					)
 					vim.keymap.set(
-						{ "n", "v" },
+						{ "n", "x" },
 						"<Leader>ca",
 						vim.lsp.buf.code_action,
 						vim.tbl_extend("force", opts, { desc = "Code action" })
 					)
 
-					-- Diagnostics
-					vim.keymap.set("n", "[d", function()
-						vim.diagnostic.jump({ count = -1, float = true })
-					end, vim.tbl_extend("force", opts, { desc = "Previous diagnostic" }))
-					vim.keymap.set("n", "]d", function()
-						vim.diagnostic.jump({ count = 1, float = true })
-					end, vim.tbl_extend("force", opts, { desc = "Next diagnostic" }))
+					-- Diagnostics. [d / ]d are Neovim's built-ins; jump.on_jump below adds the float
 					vim.keymap.set(
 						"n",
 						"<Leader>d",
@@ -238,6 +249,15 @@ return {
 				float = {
 					border = "rounded",
 					source = true,
+				},
+				-- Open the float after [d / ]d. Replaces per-buffer maps that passed
+				-- jump({ float = true }), which 0.12 deprecates and 0.14 removes
+				jump = {
+					on_jump = function(diagnostic, bufnr)
+						if diagnostic then
+							vim.diagnostic.open_float({ bufnr = bufnr, scope = "cursor", focus = false })
+						end
+					end,
 				},
 			})
 

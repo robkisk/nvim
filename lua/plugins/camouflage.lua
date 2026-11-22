@@ -9,6 +9,9 @@ return {
 		-- ~/.claude.json is ~15k lines and holds MCP env secrets; the 5000 default skips it.
 		-- Parsing it costs ~250ms per open or reload.
 		max_lines = 20000,
+		-- Off: it requires cmp on every file read, which loaded nvim-cmp and LuaSnip (~27ms) at
+		-- startup. nvim-cmp's `enabled` (cmp.lua) keeps completion off in masked buffers instead.
+		integrations = { cmp = { disable_in_masked = false } },
 		-- ~/.databrickscfg is INI-shaped, but no built-in parser claims its name
 		custom_patterns = {
 			{
@@ -20,7 +23,7 @@ return {
 		},
 		policy = {
 			-- The default ("mask") hides every parsed value: all of package.json and every
-			-- YAML/TOML config, and camouflage turns nvim-cmp off in each masked buffer. Mask
+			-- YAML/TOML config, and completion is off in each masked buffer. Mask
 			-- secrets only. :CamouflagePresent doesn't override the policy, so the demo-mode
 			-- keymap (<Leader>kp) flips default_action back to "mask" for the demo.
 			-- Rules are first-match-wins.

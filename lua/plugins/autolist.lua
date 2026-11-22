@@ -2,7 +2,11 @@ local filetypes = { "markdown", "text", "gitcommit" }
 
 return {
 	"gaoDean/autolist.nvim",
-	ft = filetypes,
+	-- BufReadPre/BufNewFile, not ft. Loading a plugin on ft makes lazy replay every FileType
+	-- autocmd, which re-runs the markdown ftplugin: its undo stops treesitter, and stopping it
+	-- loads the regex markdown syntax (~40ms) only to drop it again. Loading before the first
+	-- FileType still gives that buffer the maps below. Don't lazy-load anything on markdown.
+	event = { "BufReadPre", "BufNewFile" },
 	config = function()
 		local autolist = require("autolist")
 		autolist.setup({

@@ -30,6 +30,17 @@ return {
 			local luasnip = require("luasnip")
 
 			cmp.setup({
+				-- cmp's own defaults, plus no completion in buffers where camouflage masked a value
+				-- (the buffer source would offer the hidden text). This replaces camouflage's cmp
+				-- integration, which required cmp on every file read and so loaded nvim-cmp and
+				-- LuaSnip at startup instead of on InsertEnter.
+				enabled = function()
+					if vim.bo.buftype == "prompt" or vim.fn.reg_recording() ~= "" or vim.fn.reg_executing() ~= "" then
+						return false
+					end
+					local camouflage = package.loaded["camouflage.state"]
+					return not (camouflage and camouflage.is_buffer_masked())
+				end,
 				snippet = {
 					expand = function(args)
 						luasnip.lsp_expand(args.body)
@@ -75,11 +86,11 @@ return {
 				end
 			end, { desc = "Snippet jump forward", silent = true })
 
+			-- expr, so <C-h> stays a backspace (and Ctrl-Backspace, which often sends it, keeps
+			-- working) when there's no snippet to jump back to
 			vim.keymap.set({ "i", "s" }, "<C-h>", function()
-				if luasnip.jumpable(-1) then
-					luasnip.jump(-1)
-				end
-			end, { desc = "Snippet jump backward", silent = true })
+				return luasnip.jumpable(-1) and "<cmd>lua require('luasnip').jump(-1)<cr>" or "<C-h>"
+			end, { expr = true, desc = "Snippet jump backward", silent = true })
 		end,
 	},
 

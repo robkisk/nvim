@@ -1,7 +1,9 @@
 return {
 	"iamcco/markdown-preview.nvim",
 	cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
-	ft = { "markdown" },
+	-- Not ft = "markdown" (see autolist.lua). Its commands are buffer-local and defined on
+	-- FileType, so it has to load before the first markdown buffer's FileType fires.
+	event = { "BufReadPre", "BufNewFile" },
 	build = "cd app && npm install && git checkout -- yarn.lock",
 	init = function()
 		vim.g.mkdp_theme = "light"
